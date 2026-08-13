@@ -5,8 +5,10 @@ import { env } from './config/env';
 import routes from './routes';
 import { notFound } from './middleware/notFound';
 import { errorHandler } from './middleware/errorHandler';
+import cookieParser from 'cookie-parser';
 
 const app = express();
+app.use(cookieParser());
 
 app.use(helmet());
 app.use(
