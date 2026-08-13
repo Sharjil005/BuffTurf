@@ -31,3 +31,6 @@ backend/prisma/dev.db
 
 # Misc
 *.local
+
+# Prisma generated client
+backend/src/generated/

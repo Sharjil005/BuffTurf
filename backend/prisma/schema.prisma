@@ -1,0 +1,254 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  TURF_OWNER
+  ADMIN
+}
+
+enum TurfStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+enum ComplaintStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  phone        String?
+  role         Role     @default(USER)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  turfs         Turf[]
+  bookings      Booking[]
+  reviews       Review[]
+  favorites     Favorite[]
+  notifications Notification[]
+  complaints    Complaint[]
+
+  @@map("users")
+}
+
+model Sport {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  slug String @unique
+
+  turfSports TurfSport[]
+  bookings   Booking[]
+
+  @@map("sports")
+}
+
+model Turf {
+  id          Int        @id @default(autoincrement())
+  ownerId     Int        @map("owner_id")
+  name        String
+  description String?    @db.Text
+  address     String
+  city        String
+  latitude    Decimal?   @db.Decimal(9, 6)
+  longitude   Decimal?   @db.Decimal(9, 6)
+  status      TurfStatus @default(PENDING)
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  owner      User            @relation(fields: [ownerId], references: [id])
+  images     TurfImage[]
+  turfSports TurfSport[]
+  facilities TurfFacility[]
+  timeSlots  TimeSlot[]
+  bookings   Booking[]
+  reviews    Review[]
+  favorites  Favorite[]
+  complaints Complaint[]
+
+  @@index([city])
+  @@index([ownerId])
+  @@map("turfs")
+}
+
+model TurfImage {
+  id        Int     @id @default(autoincrement())
+  turfId    Int     @map("turf_id")
+  url       String
+  isPrimary Boolean @default(false) @map("is_primary")
+
+  turf Turf @relation(fields: [turfId], references: [id], onDelete: Cascade)
+
+  @@index([turfId])
+  @@map("turf_images")
+}
+
+model TurfSport {
+  turfId  Int @map("turf_id")
+  sportId Int @map("sport_id")
+
+  turf  Turf  @relation(fields: [turfId], references: [id], onDelete: Cascade)
+  sport Sport @relation(fields: [sportId], references: [id], onDelete: Cascade)
+
+  @@id([turfId, sportId])
+  @@map("turf_sports")
+}
+
+model Facility {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  turfFacilities TurfFacility[]
+
+  @@map("facilities")
+}
+
+model TurfFacility {
+  turfId     Int @map("turf_id")
+  facilityId Int @map("facility_id")
+
+  turf     Turf     @relation(fields: [turfId], references: [id], onDelete: Cascade)
+  facility Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+
+  @@id([turfId, facilityId])
+  @@map("turf_facilities")
+}
+
+model TimeSlot {
+  id        Int     @id @default(autoincrement())
+  turfId    Int     @map("turf_id")
+  dayOfWeek Int     @map("day_of_week")
+  startTime String  @map("start_time")
+  endTime   String  @map("end_time")
+  price     Decimal @db.Decimal(8, 2)
+  isActive  Boolean @default(true) @map("is_active")
+
+  turf     Turf      @relation(fields: [turfId], references: [id], onDelete: Cascade)
+  bookings Booking[]
+
+  @@index([turfId])
+  @@map("time_slots")
+}
+
+model Booking {
+  id          Int           @id @default(autoincrement())
+  userId      Int           @map("user_id")
+  turfId      Int           @map("turf_id")
+  timeSlotId  Int           @map("time_slot_id")
+  sportId     Int           @map("sport_id")
+  bookingDate DateTime      @map("booking_date") @db.Date
+  status      BookingStatus @default(PENDING)
+  totalPrice  Decimal       @map("total_price") @db.Decimal(8, 2)
+  createdAt   DateTime      @default(now()) @map("created_at")
+
+  user     User     @relation(fields: [userId], references: [id])
+  turf     Turf     @relation(fields: [turfId], references: [id])
+  timeSlot TimeSlot @relation(fields: [timeSlotId], references: [id])
+  sport    Sport    @relation(fields: [sportId], references: [id])
+  payment  Payment?
+  review   Review?
+
+  @@unique([timeSlotId, bookingDate])
+  @@index([userId])
+  @@index([turfId])
+  @@map("bookings")
+}
+
+model Payment {
+  id             Int           @id @default(autoincrement())
+  bookingId      Int           @unique @map("booking_id")
+  amount         Decimal       @db.Decimal(8, 2)
+  method         String        @default("MOCK")
+  status         PaymentStatus @default(PENDING)
+  transactionRef String?       @map("transaction_ref")
+  createdAt      DateTime      @default(now()) @map("created_at")
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+
+  @@map("payments")
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  turfId    Int      @map("turf_id")
+  bookingId Int      @unique @map("booking_id")
+  rating    Int
+  comment   String?  @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user    User    @relation(fields: [userId], references: [id])
+  turf    Turf    @relation(fields: [turfId], references: [id])
+  booking Booking @relation(fields: [bookingId], references: [id])
+
+  @@index([turfId])
+  @@map("reviews")
+}
+
+model Favorite {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  turfId    Int      @map("turf_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+  turf Turf @relation(fields: [turfId], references: [id])
+
+  @@unique([userId, turfId])
+  @@map("favorites")
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  type      String
+  message   String
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("notifications")
+}
+
+model Complaint {
+  id          Int             @id @default(autoincrement())
+  userId      Int             @map("user_id")
+  turfId      Int?            @map("turf_id")
+  subject     String
+  description String          @db.Text
+  status      ComplaintStatus @default(OPEN)
+  createdAt   DateTime        @default(now()) @map("created_at")
+
+  user User  @relation(fields: [userId], references: [id])
+  turf Turf? @relation(fields: [turfId], references: [id])
+
+  @@map("complaints")
+}
