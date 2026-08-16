@@ -3,6 +3,7 @@ import * as turfService from '../services/turf.service';
 import { uploadBufferToCloudinary } from '../utils/cloudinaryUpload';
 import { ApiError } from '../utils/ApiError';
 import { prisma } from '../config/db';
+import { getTurfsQuerySchema } from '../validators/turf.validator';
 
 export async function createTurf(req: Request, res: Response) {
   const turf = await turfService.createTurf(req.user!.userId, req.body);
@@ -64,4 +65,10 @@ export async function listSports(req: Request, res: Response) {
 export async function listFacilities(req: Request, res: Response) {
   const facilities = await prisma.facility.findMany({ orderBy: { name: 'asc' } });
   res.json({ success: true, facilities });
+}
+
+export async function getTurfs(req: Request, res: Response) {
+  const query = getTurfsQuerySchema.shape.query.parse(req.query);
+  const result = await turfService.getTurfs(query);
+  res.json({ success: true, ...result });
 }

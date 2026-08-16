@@ -1,6 +1,7 @@
 import { prisma } from '../config/db';
 import { ApiError } from '../utils/ApiError';
 import type { CreateTurfInput, UpdateTurfInput } from '../validators/turf.validator';
+import type { GetTurfsQuery } from '../validators/turf.validator';
 
 const turfInclude = {
   images: true,
@@ -104,4 +105,60 @@ export async function deleteTurfImage(
 ) {
   await assertOwnership(turfId, userId, role);
   await prisma.turfImage.delete({ where: { id: imageId } });
+}
+
+export async function getTurfs(query: GetTurfsQuery) {
+  const { search, city, sportId, minPrice, maxPrice, minRating, sortBy, page, limit } = query;
+
+  const where: any = { status: 'APPROVED' };
+  if (search) where.name = { contains: search };
+  if (city) where.city = { contains: city };
+  if (sportId) where.turfSports = { some: { sportId } };
+
+  const turfs = await prisma.turf.findMany({
+    where,
+    include: {
+      images: true,
+      turfSports: { include: { sport: true } },
+      timeSlots: { where: { isActive: true }, select: { price: true } },
+      reviews: { select: { rating: true } },
+    },
+  });
+
+  let results = turfs.map((turf) => {
+    const prices = turf.timeSlots.map((s) => Number(s.price));
+    const startingPrice = prices.length ? Math.min(...prices) : null;
+    const avgRating = turf.reviews.length
+      ? turf.reviews.reduce((sum, r) => sum + r.rating, 0) / turf.reviews.length
+      : 0;
+
+    const { timeSlots, reviews, ...rest } = turf;
+    return { ...rest, startingPrice, avgRating, reviewCount: reviews.length };
+  });
+
+  if (minPrice !== undefined) {
+    results = results.filter((t) => t.startingPrice !== null && t.startingPrice >= minPrice);
+  }
+  if (maxPrice !== undefined) {
+    results = results.filter((t) => t.startingPrice !== null && t.startingPrice <= maxPrice);
+  }
+  if (minRating !== undefined) {
+    results = results.filter((t) => t.avgRating >= minRating);
+  }
+
+  if (sortBy === 'price_asc') {
+    results.sort((a, b) => (a.startingPrice ?? Infinity) - (b.startingPrice ?? Infinity));
+  } else if (sortBy === 'price_desc') {
+    results.sort((a, b) => (b.startingPrice ?? -Infinity) - (a.startingPrice ?? -Infinity));
+  } else if (sortBy === 'rating') {
+    results.sort((a, b) => b.avgRating - a.avgRating);
+  } else {
+    results.sort((a, b) => b.reviewCount - a.reviewCount); // "popularity" default
+  }
+
+  const total = results.length;
+  const start = (page - 1) * limit;
+  const paginated = results.slice(start, start + limit);
+
+  return { turfs: paginated, total, page, totalPages: Math.ceil(total / limit) };
 }

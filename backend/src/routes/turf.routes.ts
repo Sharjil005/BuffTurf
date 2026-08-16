@@ -10,6 +10,7 @@ const router = Router();
 
 // Static routes MUST come before "/:id" — otherwise Express treats
 // "sports"/"mine" as if they were an :id value.
+router.get('/', asyncHandler(turfController.getTurfs));
 router.get('/sports', asyncHandler(turfController.listSports));
 router.get('/facilities', asyncHandler(turfController.listFacilities));
 router.get('/mine', protect, authorize('TURF_OWNER'), asyncHandler(turfController.getMyTurfs));
