@@ -37,6 +37,36 @@ export interface CreateTurfData {
   facilityIds: number[];
 }
 
+export interface DiscoveryTurf {
+  id: number;
+  name: string;
+  city: string;
+  address: string;
+  images: TurfImage[];
+  turfSports: { sport: Sport }[];
+  startingPrice: number | null;
+  avgRating: number;
+  reviewCount: number;
+}
+
+export interface GetTurfsParams {
+  search?: string;
+  city?: string;
+  sportId?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  minRating?: number;
+  sortBy?: 'price_asc' | 'price_desc' | 'rating' | 'popularity';
+  page?: number;
+}
+
+export interface GetTurfsResponse {
+  turfs: DiscoveryTurf[];
+  total: number;
+  page: number;
+  totalPages: number;
+}
+
 export async function getSports(): Promise<Sport[]> {
   const res = await api.get('/turfs/sports');
   return res.data.sports;
@@ -64,4 +94,9 @@ export async function uploadTurfImage(turfId: number, file: File): Promise<TurfI
     headers: { 'Content-Type': 'multipart/form-data' },
   });
   return res.data.image;
+}
+
+export async function getTurfs(params: GetTurfsParams): Promise<GetTurfsResponse> {
+  const res = await api.get('/turfs', { params });
+  return res.data;
 }

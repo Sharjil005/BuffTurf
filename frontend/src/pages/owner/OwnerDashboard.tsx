@@ -13,10 +13,17 @@ const statusStyles: Record<Turf['status'], string> = {
 
 export default function OwnerDashboard() {
   const [turfs, setTurfs] = useState<Turf[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    getMyTurfs().then(setTurfs);
+    getMyTurfs()
+      .then(setTurfs)
+      .catch((err) => setError(err.response?.data?.message ?? 'Failed to load turfs'));
   }, []);
+
+  if (error) {
+    return <p className="text-red-500">{error}</p>;
+  }
 
   if (turfs === null) {
     return <p className="text-ink-900/60">Loading your turfs...</p>;

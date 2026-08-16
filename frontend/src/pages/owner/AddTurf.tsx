@@ -60,9 +60,21 @@ export default function AddTurf() {
       <h1 className="font-display text-3xl uppercase text-ink-900">Add Turf</h1>
 
       <form onSubmit={handleSubmit(onSubmit)} className="mt-6 flex flex-col gap-4">
-        <Input label="Turf Name" {...register('name', { required: 'Name is required' })} error={errors.name?.message} />
-        <Input label="Address" {...register('address', { required: 'Address is required' })} error={errors.address?.message} />
-        <Input label="City" {...register('city', { required: 'City is required' })} error={errors.city?.message} />
+        <Input
+          label="Turf Name"
+          {...register('name', { required: 'Name is required' })}
+          error={errors.name?.message}
+        />
+        <Input
+          label="Address"
+          {...register('address', { required: 'Address is required' })}
+          error={errors.address?.message}
+        />
+        <Input
+          label="City"
+          {...register('city', { required: 'City is required' })}
+          error={errors.city?.message}
+        />
 
         <div>
           <label className="text-sm font-medium text-ink-900">Description</label>
@@ -107,7 +119,9 @@ export default function AddTurf() {
               </div>
             )}
           />
-          {errors.sportIds && <p className="mt-1 text-sm text-red-500">{errors.sportIds.message}</p>}
+          {errors.sportIds && (
+            <p className="mt-1 text-sm text-red-500">{errors.sportIds.message}</p>
+          )}
         </div>
 
         <div>

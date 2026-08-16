@@ -6,6 +6,7 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import Home from './pages/Home';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
+import Discovery from './pages/Discovery';
 import OwnerDashboard from './pages/owner/OwnerDashboard';
 import AddTurf from './pages/owner/AddTurf';
 import NotFound from './pages/NotFound';
@@ -17,6 +18,7 @@ function App() {
         <Routes>
           <Route element={<MainLayout />}>
             <Route path="/" element={<Home />} />
+            <Route path="/turfs" element={<Discovery />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
 

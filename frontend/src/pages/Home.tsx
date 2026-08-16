@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
@@ -32,7 +33,9 @@ export default function Home() {
             Book cricket, football, badminton, and more — nearby turfs, real-time slots, zero hassle.
           </p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-            <Button variant="accent">Find a Turf</Button>
+            <Link to="/turfs">
+              <Button variant="accent">Find a Turf</Button>
+            </Link>
             <Button variant="secondary">List Your Turf</Button>
           </div>
         </div>

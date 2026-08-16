@@ -21,6 +21,9 @@ export default function Navbar() {
           <Link to="/" className="hover:text-pitch-500">
             Home
           </Link>
+          <Link to="/turfs" className="hover:text-pitch-500">
+            Find Turfs
+          </Link>
           {user ? (
             <>
               {user.role === 'TURF_OWNER' && (

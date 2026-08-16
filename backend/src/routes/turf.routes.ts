@@ -8,8 +8,8 @@ import * as turfController from '../controllers/turf.controller';
 
 const router = Router();
 
-// Static routes MUST come before "/:id" — otherwise Express treats
-// "sports"/"mine" as if they were an :id value.
+// Fixed-path routes MUST come before "/:id" — otherwise Express
+// would treat "sports" / "facilities" / "mine" as an :id value.
 router.get('/', asyncHandler(turfController.getTurfs));
 router.get('/sports', asyncHandler(turfController.listSports));
 router.get('/facilities', asyncHandler(turfController.listFacilities));

@@ -1,7 +1,6 @@
 import { prisma } from '../config/db';
 import { ApiError } from '../utils/ApiError';
-import type { CreateTurfInput, UpdateTurfInput } from '../validators/turf.validator';
-import type { GetTurfsQuery } from '../validators/turf.validator';
+import type { CreateTurfInput, UpdateTurfInput, GetTurfsQuery } from '../validators/turf.validator';
 
 const turfInclude = {
   images: true,
@@ -153,7 +152,7 @@ export async function getTurfs(query: GetTurfsQuery) {
   } else if (sortBy === 'rating') {
     results.sort((a, b) => b.avgRating - a.avgRating);
   } else {
-    results.sort((a, b) => b.reviewCount - a.reviewCount); // "popularity" default
+    results.sort((a, b) => b.reviewCount - a.reviewCount);
   }
 
   const total = results.length;

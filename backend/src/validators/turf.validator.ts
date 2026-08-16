@@ -26,9 +26,6 @@ export const updateTurfSchema = z.object({
   }),
 });
 
-export type CreateTurfInput = z.infer<typeof createTurfSchema>['body'];
-export type UpdateTurfInput = z.infer<typeof updateTurfSchema>['body'];
-
 export const getTurfsQuerySchema = z.object({
   query: z.object({
     search: z.string().optional(),
@@ -43,4 +40,6 @@ export const getTurfsQuerySchema = z.object({
   }),
 });
 
+export type CreateTurfInput = z.infer<typeof createTurfSchema>['body'];
+export type UpdateTurfInput = z.infer<typeof updateTurfSchema>['body'];
 export type GetTurfsQuery = z.infer<typeof getTurfsQuerySchema>['query'];
