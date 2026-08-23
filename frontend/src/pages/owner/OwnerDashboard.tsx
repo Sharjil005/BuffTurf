@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getMyTurfs, type Turf } from '../../services/api/turf';
@@ -72,6 +73,12 @@ export default function OwnerDashboard() {
                 <Badge key={sport.id}>{sport.name}</Badge>
               ))}
             </div>
+            <Link
+              to={`/owner/turfs/${turf.id}/slots`}
+              className="mt-4 inline-block text-sm font-medium text-pitch-500 hover:underline"
+            >
+              Manage Slots →
+            </Link>
           </Card>
         ))}
       </div>
