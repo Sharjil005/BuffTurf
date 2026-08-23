@@ -42,7 +42,7 @@ export async function getTurfById(id: number) {
   return turf;
 }
 
-async function assertOwnership(turfId: number, userId: number, role: string) {
+export async function assertOwnership(turfId: number, userId: number, role: string) {
   const turf = await prisma.turf.findUnique({ where: { id: turfId } });
   if (!turf) throw new ApiError(404, 'Turf not found');
   if (turf.ownerId !== userId && role !== 'ADMIN') {

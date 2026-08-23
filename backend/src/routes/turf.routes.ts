@@ -5,6 +5,8 @@ import { asyncHandler } from '../utils/asyncHandler';
 import { upload } from '../middleware/upload';
 import { createTurfSchema, updateTurfSchema } from '../validators/turf.validator';
 import * as turfController from '../controllers/turf.controller';
+import { createTimeSlotSchema, updateTimeSlotSchema } from '../validators/timeSlot.validator';
+import * as timeSlotController from '../controllers/timeSlot.controller';
 
 const router = Router();
 
@@ -24,6 +26,31 @@ router.post(
 );
 
 router.get('/:id', asyncHandler(turfController.getTurf));
+
+router.get('/:id/slots', asyncHandler(timeSlotController.getTurfSlots));
+
+router.post(
+  '/:id/slots',
+  protect,
+  authorize('TURF_OWNER'),
+  validate(createTimeSlotSchema),
+  asyncHandler(timeSlotController.createTimeSlot)
+);
+
+router.patch(
+  '/:id/slots/:slotId',
+  protect,
+  authorize('TURF_OWNER', 'ADMIN'),
+  validate(updateTimeSlotSchema),
+  asyncHandler(timeSlotController.updateTimeSlot)
+);
+
+router.delete(
+  '/:id/slots/:slotId',
+  protect,
+  authorize('TURF_OWNER', 'ADMIN'),
+  asyncHandler(timeSlotController.deleteTimeSlot)
+);
 
 router.put(
   '/:id',
