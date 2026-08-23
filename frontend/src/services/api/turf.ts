@@ -100,3 +100,8 @@ export async function getTurfs(params: GetTurfsParams): Promise<GetTurfsResponse
   const res = await api.get('/turfs', { params });
   return res.data;
 }
+
+export async function getTurfById(id: number): Promise<Turf> {
+  const res = await api.get(`/turfs/${id}`);
+  return res.data.turf;
+}

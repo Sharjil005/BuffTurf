@@ -10,6 +10,8 @@ import Discovery from './pages/Discovery';
 import OwnerDashboard from './pages/owner/OwnerDashboard';
 import AddTurf from './pages/owner/AddTurf';
 import NotFound from './pages/NotFound';
+import TurfDetail from './pages/TurfDetail';
+import ManageSlots from './pages/owner/ManageSlots';
 
 function App() {
   return (
@@ -21,12 +23,14 @@ function App() {
             <Route path="/turfs" element={<Discovery />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/turfs/:id" element={<TurfDetail />} />
 
             <Route element={<ProtectedRoute allowedRoles={['TURF_OWNER']} />}>
               <Route element={<OwnerLayout />}>
                 <Route path="/owner" element={<OwnerDashboard />} />
                 <Route path="/owner/add-turf" element={<AddTurf />} />
               </Route>
+              <Route path="/owner/turfs/:id/slots" element={<ManageSlots />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />
