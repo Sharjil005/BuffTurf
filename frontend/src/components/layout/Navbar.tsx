@@ -26,6 +26,9 @@ export default function Navbar() {
           </Link>
           {user ? (
             <>
+              <Link to="/my-bookings" className="hover:text-pitch-500">
+                My Bookings
+              </Link>
               {user.role === 'TURF_OWNER' && (
                 <Link to="/owner" className="hover:text-pitch-500">
                   Dashboard

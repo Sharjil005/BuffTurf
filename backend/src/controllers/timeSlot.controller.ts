@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import * as timeSlotService from '../services/timeSlot.service';
+import { ApiError } from '../utils/ApiError';
 
 export async function createTimeSlot(req: Request, res: Response) {
   const slot = await timeSlotService.createTimeSlot(
@@ -35,4 +36,11 @@ export async function deleteTimeSlot(req: Request, res: Response) {
     req.user!.role
   );
   res.json({ success: true, message: 'Time slot deleted' });
+}
+
+export async function getAvailability(req: Request, res: Response) {
+  const date = req.query.date as string;
+  if (!date) throw new ApiError(400, 'date query parameter is required');
+  const slots = await timeSlotService.getAvailability(Number(req.params.id), date);
+  res.json({ success: true, slots });
 }

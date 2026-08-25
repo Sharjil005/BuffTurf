@@ -29,6 +29,8 @@ router.get('/:id', asyncHandler(turfController.getTurf));
 
 router.get('/:id/slots', asyncHandler(timeSlotController.getTurfSlots));
 
+router.get('/:id/availability', asyncHandler(timeSlotController.getAvailability));
+
 router.post(
   '/:id/slots',
   protect,
