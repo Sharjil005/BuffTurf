@@ -165,6 +165,7 @@ model Booking {
   bookingDate DateTime      @map("booking_date") @db.Date
   status      BookingStatus @default(PENDING)
   totalPrice  Decimal       @map("total_price") @db.Decimal(8, 2)
+  activeKey   String?       @unique @map("active_key")
   createdAt   DateTime      @default(now()) @map("created_at")
 
   user     User     @relation(fields: [userId], references: [id])
@@ -174,7 +175,6 @@ model Booking {
   payment  Payment?
   review   Review?
 
-  @@unique([timeSlotId, bookingDate])
   @@index([userId])
   @@index([turfId])
   @@map("bookings")
