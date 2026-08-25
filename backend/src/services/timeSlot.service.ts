@@ -73,3 +73,31 @@ export async function deleteTimeSlot(
 
   await prisma.timeSlot.delete({ where: { id: slotId } });
 }
+
+export async function getAvailability(turfId: number, dateStr: string) {
+  const dateObj = new Date(`${dateStr}T00:00:00Z`);
+  if (isNaN(dateObj.getTime())) {
+    throw new ApiError(400, 'Invalid date');
+  }
+  const dayOfWeek = dateObj.getUTCDay();
+
+  const slots = await prisma.timeSlot.findMany({
+    where: { turfId, dayOfWeek, isActive: true },
+    orderBy: { startTime: 'asc' },
+  });
+
+  const activeKeys = slots.map((s) => `${s.id}#${dateStr}`);
+  const bookedSlotIds = new Set(
+    (
+      await prisma.booking.findMany({
+        where: { activeKey: { in: activeKeys } },
+        select: { timeSlotId: true },
+      })
+    ).map((b) => b.timeSlotId)
+  );
+
+  return slots.map((slot) => ({
+    ...slot,
+    isBooked: bookedSlotIds.has(slot.id),
+  }));
+}

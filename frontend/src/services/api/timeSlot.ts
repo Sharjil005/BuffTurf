@@ -42,3 +42,12 @@ export async function updateTimeSlot(
 export async function deleteTimeSlot(turfId: number, slotId: number): Promise<void> {
   await api.delete(`/turfs/${turfId}/slots/${slotId}`);
 }
+
+export interface SlotAvailability extends TimeSlot {
+  isBooked: boolean;
+}
+
+export async function getAvailability(turfId: number, date: string): Promise<SlotAvailability[]> {
+  const res = await api.get(`/turfs/${turfId}/availability`, { params: { date } });
+  return res.data.slots;
+}

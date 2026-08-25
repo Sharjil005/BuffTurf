@@ -7,11 +7,12 @@ import Home from './pages/Home';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import Discovery from './pages/Discovery';
+import TurfDetail from './pages/TurfDetail';
+import MyBookings from './pages/MyBookings';
 import OwnerDashboard from './pages/owner/OwnerDashboard';
 import AddTurf from './pages/owner/AddTurf';
-import NotFound from './pages/NotFound';
-import TurfDetail from './pages/TurfDetail';
 import ManageSlots from './pages/owner/ManageSlots';
+import NotFound from './pages/NotFound';
 
 function App() {
   return (
@@ -21,9 +22,13 @@ function App() {
           <Route element={<MainLayout />}>
             <Route path="/" element={<Home />} />
             <Route path="/turfs" element={<Discovery />} />
+            <Route path="/turfs/:id" element={<TurfDetail />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/turfs/:id" element={<TurfDetail />} />
+
+            <Route element={<ProtectedRoute />}>
+              <Route path="/my-bookings" element={<MyBookings />} />
+            </Route>
 
             <Route element={<ProtectedRoute allowedRoles={['TURF_OWNER']} />}>
               <Route element={<OwnerLayout />}>

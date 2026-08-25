@@ -1,36 +1,66 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getTurfById, type Turf } from '../services/api/turf';
-import { getTurfSlots, type TimeSlot } from '../services/api/timeSlot';
+import { getAvailability, type SlotAvailability } from '../services/api/timeSlot';
+import { useAuth } from '../context/AuthContext';
 import Badge from '../components/ui/Badge';
-
-const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+import Button from '../components/ui/Button';
+import DatePicker from '../components/booking/DatePicker';
+import BookingModal from '../components/booking/BookingModal';
 
 export default function TurfDetail() {
   const { id } = useParams<{ id: string }>();
   const turfId = Number(id);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const [turf, setTurf] = useState<Turf | null>(null);
-  const [slots, setSlots] = useState<TimeSlot[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [date, setDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [availability, setAvailability] = useState<SlotAvailability[]>([]);
+  const [loadingAvailability, setLoadingAvailability] = useState(false);
+  const [selectedSlot, setSelectedSlot] = useState<SlotAvailability | null>(null);
+  const [bookingSuccess, setBookingSuccess] = useState(false);
+
   useEffect(() => {
-    Promise.all([getTurfById(turfId), getTurfSlots(turfId)])
-      .then(([turfData, slotsData]) => {
-        setTurf(turfData);
-        setSlots(slotsData.filter((s) => s.isActive));
-      })
+    getTurfById(turfId)
+      .then(setTurf)
       .catch((err) => setError(err.response?.data?.message ?? 'Turf not found'))
       .finally(() => setLoading(false));
   }, [turfId]);
+
+  useEffect(() => {
+    if (!date) return;
+    setLoadingAvailability(true);
+    getAvailability(turfId, date)
+      .then(setAvailability)
+      .finally(() => setLoadingAvailability(false));
+  }, [turfId, date]);
 
   if (loading) return <p className="px-4 py-10 text-center text-ink-900/60">Loading...</p>;
   if (error || !turf) {
     return <p className="px-4 py-10 text-center text-red-500">{error ?? 'Turf not found'}</p>;
   }
 
-  const startingPrice = slots.length ? Math.min(...slots.map((s) => Number(s.price))) : null;
+  const startingPrice = availability.length
+    ? Math.min(...availability.map((s) => Number(s.price)))
+    : null;
+
+  function handleBookClick(slot: SlotAvailability) {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    setSelectedSlot(slot);
+  }
+
+  function handleBookingSuccess() {
+    setSelectedSlot(null);
+    setBookingSuccess(true);
+    getAvailability(turfId, date).then(setAvailability);
+  }
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10">
@@ -78,39 +108,67 @@ export default function TurfDetail() {
         </div>
       )}
 
-      <div className="mt-10">
-        <h2 className="font-display text-xl uppercase text-ink-900">Weekly Availability</h2>
-        {slots.length === 0 ? (
-          <p className="mt-2 text-ink-900/60">This turf hasn't listed its available slots yet.</p>
-        ) : (
-          <div className="mt-4 space-y-4">
-            {days.map((day, dayIndex) => {
-              const daySlots = slots
-                .filter((s) => s.dayOfWeek === dayIndex)
-                .sort((a, b) => a.startTime.localeCompare(b.startTime));
-              if (daySlots.length === 0) return null;
-              return (
-                <div key={dayIndex}>
-                  <h3 className="font-medium text-turf-700">{day}</h3>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {daySlots.map((slot) => (
-                      <div
-                        key={slot.id}
-                        className="rounded-md border border-ink-900/10 px-3 py-2 font-mono text-sm text-ink-900"
-                      >
-                        {slot.startTime}–{slot.endTime} · ₹{slot.price}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
+      <div className="mt-10 rounded-lg border border-ink-900/10 p-6">
+        <h2 className="font-display text-xl uppercase text-ink-900">Book a Slot</h2>
+
+        {bookingSuccess && (
+          <div className="mt-4 rounded-md bg-pitch-500/10 px-4 py-3 text-sm text-pitch-500">
+            Booking confirmed!{' '}
+            <Link to="/my-bookings" className="font-medium underline">
+              View my bookings
+            </Link>
           </div>
         )}
-        <p className="mt-6 text-sm text-ink-900/50">
-          Booking will be available once the booking system goes live in the next phase.
-        </p>
+
+        <div className="mt-4">
+          <DatePicker value={date} onChange={setDate} />
+        </div>
+
+        <div className="mt-6">
+          {loadingAvailability ? (
+            <p className="text-sm text-ink-900/60">Checking availability...</p>
+          ) : availability.length === 0 ? (
+            <p className="text-sm text-ink-900/60">
+              No slots available on this day of the week.
+            </p>
+          ) : (
+            <div className="flex flex-wrap gap-3">
+              {availability.map((slot) => (
+                <button
+                  key={slot.id}
+                  disabled={slot.isBooked}
+                  onClick={() => handleBookClick(slot)}
+                  className={`rounded-md border px-4 py-3 text-left text-sm transition-colors ${
+                    slot.isBooked
+                      ? 'cursor-not-allowed border-ink-900/10 bg-ink-900/5 text-ink-900/30'
+                      : 'border-pitch-500/30 text-ink-900 hover:border-pitch-500 hover:bg-pitch-500/5'
+                  }`}
+                >
+                  <div className="font-mono">
+                    {slot.startTime} – {slot.endTime}
+                  </div>
+                  <div className="mt-1 font-mono text-pitch-500">
+                    {slot.isBooked ? 'Booked' : `₹${slot.price}`}
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
+
+      {selectedSlot && (
+        <BookingModal
+          turfId={turfId}
+          turfName={turf.name}
+          sportId={turf.turfSports[0]?.sport.id ?? 0}
+          sportName={turf.turfSports[0]?.sport.name ?? ''}
+          date={date}
+          slot={selectedSlot}
+          onClose={() => setSelectedSlot(null)}
+          onSuccess={handleBookingSuccess}
+        />
+      )}
     </div>
   );
 }
