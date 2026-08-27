@@ -2,12 +2,13 @@ import { Link } from 'react-router-dom';
 import type { DiscoveryTurf } from '../../services/api/turf';
 import Card from '../ui/Card';
 import Badge from '../ui/Badge';
+import FavoriteButton from './FavoriteButton';
 
 export default function TurfCard({ turf }: { turf: DiscoveryTurf }) {
   return (
     <Link to={`/turfs/${turf.id}`}>
       <Card className="p-0 overflow-hidden">
-        <div className="h-44 w-full bg-ink-900/5">
+        <div className="relative h-44 w-full bg-ink-900/5">
           {turf.images[0] ? (
             <img src={turf.images[0].url} alt={turf.name} className="h-full w-full object-cover" />
           ) : (
@@ -15,6 +16,9 @@ export default function TurfCard({ turf }: { turf: DiscoveryTurf }) {
               No image
             </div>
           )}
+          <div className="absolute right-3 top-3">
+            <FavoriteButton turfId={turf.id} />
+          </div>
         </div>
         <div className="p-5">
           <div className="flex items-start justify-between gap-2">

@@ -3,6 +3,7 @@ import { registerUser, loginUser } from '../services/auth.service';
 import { env } from '../config/env';
 import { prisma } from '../config/db';
 import { ApiError } from '../utils/ApiError';
+import * as userService from '../services/user.service';
 
 const COOKIE_NAME = 'token';
 
@@ -45,5 +46,10 @@ export function logout(req: Request, res: Response) {
 export async function me(req: Request, res: Response) {
   const user = await prisma.user.findUnique({ where: { id: req.user!.userId } });
   if (!user) throw new ApiError(404, 'User not found');
+  res.json({ success: true, user: sanitizeUser(user) });
+}
+
+export async function updateProfile(req: Request, res: Response) {
+  const user = await userService.updateProfile(req.user!.userId, req.body);
   res.json({ success: true, user: sanitizeUser(user) });
 }

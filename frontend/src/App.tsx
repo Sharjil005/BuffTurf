@@ -13,6 +13,8 @@ import OwnerDashboard from './pages/owner/OwnerDashboard';
 import AddTurf from './pages/owner/AddTurf';
 import ManageSlots from './pages/owner/ManageSlots';
 import NotFound from './pages/NotFound';
+import Profile from './pages/Profile';
+import Favorites from './pages/Favorites';
 
 function App() {
   return (
@@ -36,6 +38,12 @@ function App() {
                 <Route path="/owner/add-turf" element={<AddTurf />} />
               </Route>
               <Route path="/owner/turfs/:id/slots" element={<ManageSlots />} />
+            </Route>
+
+            <Route element={<ProtectedRoute />}>
+              <Route path="/my-bookings" element={<MyBookings />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/favorites" element={<Favorites />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />

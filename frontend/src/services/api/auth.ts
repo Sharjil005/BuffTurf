@@ -38,3 +38,8 @@ export async function meRequest(): Promise<User> {
   const res = await api.get('/auth/me');
   return res.data.user;
 }
+
+export async function updateProfile(data: { name?: string; phone?: string }): Promise<User> {
+  const res = await api.patch('/auth/me', data);
+  return res.data.user;
+}
