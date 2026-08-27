@@ -79,7 +79,7 @@ export default function ManageSlots() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
-      <Link to="/owner" className="text-sm text-pitch-500 hover:underline">
+      <Link to="/owner/turfs" className="text-sm text-pitch-500 hover:underline">
         ← Back to My Turfs
       </Link>
       <h1 className="mt-2 font-display text-3xl uppercase text-ink-900">
