@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { getMyBookings, cancelBooking, type Booking } from '../services/api/booking';
+import { getMyBookings, cancelBooking, payForBooking, type Booking } from '../services/api/booking';
 import Card from '../components/ui/Card';
+import Button from '../components/ui/Button';
 
 const statusStyles: Record<Booking['status'], string> = {
   PENDING: 'bg-amber-500/10 text-amber-600',
@@ -11,7 +12,8 @@ const statusStyles: Record<Booking['status'], string> = {
 
 export default function MyBookings() {
   const [bookings, setBookings] = useState<Booking[] | null>(null);
-  const [cancellingId, setCancellingId] = useState<number | null>(null);
+  const [actioningId, setActioningId] = useState<number | null>(null);
+  const [paymentError, setPaymentError] = useState<Record<number, string>>({});
 
   function load() {
     getMyBookings().then(setBookings);
@@ -23,12 +25,34 @@ export default function MyBookings() {
 
   async function handleCancel(id: number) {
     if (!confirm('Cancel this booking?')) return;
-    setCancellingId(id);
+    setActioningId(id);
     try {
       await cancelBooking(id);
       load();
     } finally {
-      setCancellingId(null);
+      setActioningId(null);
+    }
+  }
+
+  async function handlePay(id: number) {
+    setActioningId(id);
+    setPaymentError((prev) => ({ ...prev, [id]: '' }));
+    try {
+      const result = await payForBooking(id);
+      if (result.payment.status === 'FAILED') {
+        setPaymentError((prev) => ({
+          ...prev,
+          [id]: 'Payment failed. Please try again.',
+        }));
+      }
+      load();
+    } catch (err: any) {
+      setPaymentError((prev) => ({
+        ...prev,
+        [id]: err.response?.data?.message ?? 'Something went wrong',
+      }));
+    } finally {
+      setActioningId(null);
     }
   }
 
@@ -61,15 +85,41 @@ export default function MyBookings() {
                   {booking.status}
                 </span>
               </div>
-              {(booking.status === 'PENDING' || booking.status === 'CONFIRMED') && (
-                <button
-                  onClick={() => handleCancel(booking.id)}
-                  disabled={cancellingId === booking.id}
-                  className="mt-4 text-sm font-medium text-red-500 hover:underline"
-                >
-                  {cancellingId === booking.id ? 'Cancelling...' : 'Cancel Booking'}
-                </button>
+
+              {paymentError[booking.id] && (
+                <p className="mt-3 text-sm text-red-500">{paymentError[booking.id]}</p>
               )}
+
+              <div className="mt-4 flex gap-4">
+                {booking.status === 'PENDING' && (
+                  <>
+                    <Button
+                      variant="primary"
+                      className="px-4 py-2 text-sm"
+                      onClick={() => handlePay(booking.id)}
+                      disabled={actioningId === booking.id}
+                    >
+                      {actioningId === booking.id ? 'Processing...' : 'Pay Now'}
+                    </Button>
+                    <button
+                      onClick={() => handleCancel(booking.id)}
+                      disabled={actioningId === booking.id}
+                      className="text-sm font-medium text-red-500 hover:underline"
+                    >
+                      Cancel Booking
+                    </button>
+                  </>
+                )}
+                {booking.status === 'CONFIRMED' && (
+                  <button
+                    onClick={() => handleCancel(booking.id)}
+                    disabled={actioningId === booking.id}
+                    className="text-sm font-medium text-red-500 hover:underline"
+                  >
+                    {actioningId === booking.id ? 'Cancelling...' : 'Cancel Booking'}
+                  </button>
+                )}
+              </div>
             </Card>
           ))}
         </div>
