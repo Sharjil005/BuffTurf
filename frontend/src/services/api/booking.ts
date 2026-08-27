@@ -35,3 +35,17 @@ export async function cancelBooking(id: number): Promise<Booking> {
   const res = await api.patch(`/bookings/${id}/cancel`);
   return res.data.booking;
 }
+
+export interface PaymentResult {
+  payment: {
+    id: number;
+    status: 'PENDING' | 'SUCCESS' | 'FAILED';
+    transactionRef: string | null;
+  };
+  bookingStatus: Booking['status'];
+}
+
+export async function payForBooking(bookingId: number): Promise<PaymentResult> {
+  const res = await api.post(`/bookings/${bookingId}/pay`, { method: 'MOCK' });
+  return res.data;
+}
