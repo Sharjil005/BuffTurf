@@ -38,6 +38,8 @@ export default function Navbar() {
               <Button variant="ghost" className="px-4 py-2 text-sm" onClick={handleLogout}>
                 Log Out
               </Button>
+              <Link to="/favorites" className="hover:text-pitch-500">Favorites</Link>
+              <Link to="/profile" className="hover:text-pitch-500">Profile</Link>
             </>
           ) : (
             <>

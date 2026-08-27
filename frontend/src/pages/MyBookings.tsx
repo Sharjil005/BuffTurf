@@ -10,8 +10,11 @@ const statusStyles: Record<Booking['status'], string> = {
   COMPLETED: 'bg-ink-900/10 text-ink-900/60',
 };
 
+type Tab = 'upcoming' | 'past' | 'cancelled';
+
 export default function MyBookings() {
   const [bookings, setBookings] = useState<Booking[] | null>(null);
+  const [tab, setTab] = useState<Tab>('upcoming');
   const [actioningId, setActioningId] = useState<number | null>(null);
   const [paymentError, setPaymentError] = useState<Record<number, string>>({});
 
@@ -40,17 +43,11 @@ export default function MyBookings() {
     try {
       const result = await payForBooking(id);
       if (result.payment.status === 'FAILED') {
-        setPaymentError((prev) => ({
-          ...prev,
-          [id]: 'Payment failed. Please try again.',
-        }));
+        setPaymentError((prev) => ({ ...prev, [id]: 'Payment failed. Please try again.' }));
       }
       load();
     } catch (err: any) {
-      setPaymentError((prev) => ({
-        ...prev,
-        [id]: err.response?.data?.message ?? 'Something went wrong',
-      }));
+      setPaymentError((prev) => ({ ...prev, [id]: err.response?.data?.message ?? 'Something went wrong' }));
     } finally {
       setActioningId(null);
     }
@@ -60,15 +57,45 @@ export default function MyBookings() {
     return <p className="mx-auto max-w-3xl px-4 py-10 text-ink-900/60">Loading...</p>;
   }
 
+  const now = new Date();
+  const filtered = bookings.filter((b) => {
+    if (tab === 'cancelled') return b.status === 'CANCELLED';
+    const isPast = new Date(b.bookingDate) < now;
+    if (tab === 'past') return b.status !== 'CANCELLED' && isPast;
+    return b.status !== 'CANCELLED' && !isPast;
+  });
+
+  const tabs: { key: Tab; label: string }[] = [
+    { key: 'upcoming', label: 'Upcoming' },
+    { key: 'past', label: 'Past' },
+    { key: 'cancelled', label: 'Cancelled' },
+  ];
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
       <h1 className="font-display text-3xl uppercase text-ink-900">My Bookings</h1>
 
-      {bookings.length === 0 ? (
-        <p className="mt-4 text-ink-900/60">You haven't made any bookings yet.</p>
+      <div className="mt-6 flex gap-2 border-b border-ink-900/10">
+        {tabs.map((t) => (
+          <button
+            key={t.key}
+            onClick={() => setTab(t.key)}
+            className={`px-4 py-2 text-sm font-medium ${
+              tab === t.key
+                ? 'border-b-2 border-pitch-500 text-pitch-500'
+                : 'text-ink-900/50 hover:text-ink-900'
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {filtered.length === 0 ? (
+        <p className="mt-6 text-ink-900/60">No {tab} bookings.</p>
       ) : (
         <div className="mt-6 space-y-4">
-          {bookings.map((booking) => (
+          {filtered.map((booking) => (
             <Card key={booking.id}>
               <div className="flex items-start justify-between">
                 <div>
@@ -79,9 +106,7 @@ export default function MyBookings() {
                   </p>
                   <p className="mt-1 font-mono text-sm text-turf-700">₹{booking.totalPrice}</p>
                 </div>
-                <span
-                  className={`rounded-full px-3 py-1 text-xs font-medium ${statusStyles[booking.status]}`}
-                >
+                <span className={`rounded-full px-3 py-1 text-xs font-medium ${statusStyles[booking.status]}`}>
                   {booking.status}
                 </span>
               </div>

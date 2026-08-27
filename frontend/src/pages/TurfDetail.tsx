@@ -4,9 +4,9 @@ import { getTurfById, type Turf } from '../services/api/turf';
 import { getAvailability, type SlotAvailability } from '../services/api/timeSlot';
 import { useAuth } from '../context/AuthContext';
 import Badge from '../components/ui/Badge';
-import Button from '../components/ui/Button';
 import DatePicker from '../components/booking/DatePicker';
 import BookingModal from '../components/booking/BookingModal';
+import FavoriteButton from '../components/turf/FavoriteButton';
 
 export default function TurfDetail() {
   const { id } = useParams<{ id: string }>();
@@ -74,7 +74,10 @@ export default function TurfDetail() {
 
       <div className="mt-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="font-display text-4xl uppercase text-ink-900">{turf.name}</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="font-display text-4xl uppercase text-ink-900">{turf.name}</h1>
+            <FavoriteButton turfId={turf.id} />
+          </div>
           <p className="mt-1 text-ink-900/60">
             {turf.address}, {turf.city}
           </p>
