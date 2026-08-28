@@ -34,6 +34,9 @@ export default function Navbar() {
                   Dashboard
                 </Link>
               )}
+              {user.role === 'ADMIN' && (
+                <Link to="/admin" className="hover:text-pitch-500">Admin</Link>
+              )}
               <span className="text-ink-900/60">Hi, {user.name.split(' ')[0]}</span>
               <Button variant="ghost" className="px-4 py-2 text-sm" onClick={handleLogout}>
                 Log Out
