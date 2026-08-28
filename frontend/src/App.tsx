@@ -17,7 +17,11 @@ import Profile from './pages/Profile';
 import Favorites from './pages/Favorites';
 import OwnerOverview from './pages/owner/OwnerOverview';
 import OwnerBookings from './pages/owner/OwnerBookings';
-
+import AdminLayout from './layouts/AdminLayout';
+import AdminOverview from './pages/admin/AdminOverview';
+import AdminUsers from './pages/admin/AdminUsers';
+import AdminTurfs from './pages/admin/AdminTurfs';
+import AdminBookings from './pages/admin/AdminBookings';
 
 function App() {
   return (
@@ -49,6 +53,15 @@ function App() {
               <Route path="/my-bookings" element={<MyBookings />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/favorites" element={<Favorites />} />
+            </Route>
+
+            <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
+              <Route element={<AdminLayout />}>
+                <Route path="/admin" element={<AdminOverview />} />
+                <Route path="/admin/users" element={<AdminUsers />} />
+                <Route path="/admin/turfs" element={<AdminTurfs />} />
+                <Route path="/admin/bookings" element={<AdminBookings />} />
+              </Route>
             </Route>
 
             <Route path="*" element={<NotFound />} />

@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
@@ -32,6 +33,15 @@ async function main() {
     });
   }
   console.log('✅ Seed complete');
+  const adminEmail = 'admin@buffturf.com';
+  const existing = await prisma.user.findUnique({ where: { email: adminEmail } });
+  if (!existing) {
+    const passwordHash = await bcrypt.hash('admin123', 12);
+    await prisma.user.create({
+      data: { name: 'Admin', email: adminEmail, passwordHash, role: 'ADMIN' },
+    });
+    console.log('✅ Admin user created: admin@buffturf.com / admin123');
+  }
 }
 
 main()
