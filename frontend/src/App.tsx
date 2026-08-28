@@ -15,6 +15,9 @@ import ManageSlots from './pages/owner/ManageSlots';
 import NotFound from './pages/NotFound';
 import Profile from './pages/Profile';
 import Favorites from './pages/Favorites';
+import OwnerOverview from './pages/owner/OwnerOverview';
+import OwnerBookings from './pages/owner/OwnerBookings';
+
 
 function App() {
   return (
@@ -34,7 +37,9 @@ function App() {
 
             <Route element={<ProtectedRoute allowedRoles={['TURF_OWNER']} />}>
               <Route element={<OwnerLayout />}>
-                <Route path="/owner" element={<OwnerDashboard />} />
+                <Route path="/owner" element={<OwnerOverview />} />
+                <Route path="/owner/turfs" element={<OwnerDashboard />} />
+                <Route path="/owner/bookings" element={<OwnerBookings />} />
                 <Route path="/owner/add-turf" element={<AddTurf />} />
               </Route>
               <Route path="/owner/turfs/:id/slots" element={<ManageSlots />} />

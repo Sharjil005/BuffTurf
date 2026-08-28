@@ -1,7 +1,9 @@
 import { NavLink, Outlet } from 'react-router-dom';
 
 const links = [
-  { to: '/owner', label: 'My Turfs', end: true },
+  { to: '/owner', label: 'Overview', end: true },
+  { to: '/owner/turfs', label: 'My Turfs' },
+  { to: '/owner/bookings', label: 'Bookings' },
   { to: '/owner/add-turf', label: 'Add Turf' },
 ];
 
@@ -17,9 +19,7 @@ export default function OwnerLayout() {
               end={link.end}
               className={({ isActive }) =>
                 `rounded-md px-4 py-2.5 text-sm font-medium transition-colors ${
-                  isActive
-                    ? 'bg-pitch-500/10 text-pitch-500'
-                    : 'text-ink-900/70 hover:bg-ink-900/5'
+                  isActive ? 'bg-pitch-500/10 text-pitch-500' : 'text-ink-900/70 hover:bg-ink-900/5'
                 }`
               }
             >
