@@ -1,11 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getTurfById, type Turf } from '../services/api/turf';
-import { getAvailability, type SlotAvailability } from '../services/api/timeSlot';
+import { getAvailability, getTurfSlots, type SlotAvailability, type TimeSlot } from '../services/api/timeSlot';
+import { getTurfReviews, type Review } from '../services/api/review';
+import { getMyBookings } from '../services/api/booking';
 import { useAuth } from '../context/AuthContext';
 import Badge from '../components/ui/Badge';
+import Button from '../components/ui/Button';
 import DatePicker from '../components/booking/DatePicker';
 import BookingModal from '../components/booking/BookingModal';
+import ReviewForm from '../components/review/ReviewForm';
+import ReviewList from '../components/review/ReviewList';
 import FavoriteButton from '../components/turf/FavoriteButton';
 
 export default function TurfDetail() {
@@ -24,9 +29,19 @@ export default function TurfDetail() {
   const [selectedSlot, setSelectedSlot] = useState<SlotAvailability | null>(null);
   const [bookingSuccess, setBookingSuccess] = useState(false);
 
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [completedBookingId, setCompletedBookingId] = useState<number | null>(null);
+
+  function loadReviews() {
+    getTurfReviews(turfId).then(setReviews);
+  }
+
   useEffect(() => {
-    getTurfById(turfId)
-      .then(setTurf)
+    Promise.all([getTurfById(turfId), getTurfReviews(turfId)])
+      .then(([turfData, reviewsData]) => {
+        setTurf(turfData);
+        setReviews(reviewsData);
+      })
       .catch((err) => setError(err.response?.data?.message ?? 'Turf not found'))
       .finally(() => setLoading(false));
   }, [turfId]);
@@ -38,6 +53,21 @@ export default function TurfDetail() {
       .then(setAvailability)
       .finally(() => setLoadingAvailability(false));
   }, [turfId, date]);
+
+  useEffect(() => {
+    if (!user) return;
+    getMyBookings().then((bookings) => {
+      const completed = bookings.find(
+        (b) => b.turfId === turfId && b.status === 'COMPLETED'
+      );
+      setCompletedBookingId(completed?.id ?? null);
+    });
+  }, [user, turfId]);
+
+  useEffect(() => {
+    setAvailability([]);
+    setDate((d) => d);
+  }, []);
 
   if (loading) return <p className="px-4 py-10 text-center text-ink-900/60">Loading...</p>;
   if (error || !turf) {
@@ -73,19 +103,18 @@ export default function TurfDetail() {
       </div>
 
       <div className="mt-6 flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="font-display text-4xl uppercase text-ink-900">{turf.name}</h1>
-            <FavoriteButton turfId={turf.id} />
-          </div>
-          <p className="mt-1 text-ink-900/60">
-            {turf.address}, {turf.city}
-          </p>
+        <div className="flex items-center gap-3">
+          <h1 className="font-display text-4xl uppercase text-ink-900">{turf.name}</h1>
+          <FavoriteButton turfId={turf.id} />
         </div>
         {startingPrice !== null && (
           <div className="font-mono text-lg text-turf-700">From ₹{startingPrice}/hr</div>
         )}
       </div>
+
+      <p className="mt-1 text-ink-900/60">
+        {turf.address}, {turf.city}
+      </p>
 
       {turf.description && <p className="mt-4 text-ink-900/70">{turf.description}</p>}
 
@@ -158,6 +187,22 @@ export default function TurfDetail() {
             </div>
           )}
         </div>
+      </div>
+
+      <div className="mt-10">
+        <h2 className="font-display text-xl uppercase text-ink-900">Reviews</h2>
+        <div className="mt-4">
+          <ReviewList reviews={reviews} />
+        </div>
+        {completedBookingId && (
+          <div className="mt-6">
+            <ReviewForm
+              turfId={turfId}
+              bookingId={completedBookingId}
+              onSuccess={loadReviews}
+            />
+          </div>
+        )}
       </div>
 
       {selectedSlot && (
