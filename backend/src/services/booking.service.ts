@@ -1,6 +1,7 @@
 import { prisma } from '../config/db';
 import { ApiError } from '../utils/ApiError';
 import type { CreateBookingInput } from '../validators/booking.validator';
+import { createNotification } from './notification.service';
 
 export async function createBooking(userId: number, input: CreateBookingInput) {
   const { turfId, timeSlotId, sportId, bookingDate } = input;
@@ -36,7 +37,7 @@ export async function createBooking(userId: number, input: CreateBookingInput) {
   const activeKey = `${timeSlotId}#${bookingDate}`;
 
   try {
-    return await prisma.booking.create({
+    const booking = await prisma.booking.create({
       data: {
         userId,
         turfId,
@@ -49,6 +50,20 @@ export async function createBooking(userId: number, input: CreateBookingInput) {
       },
       include: { turf: true, timeSlot: true, sport: true },
     });
+
+    // Notify user & turf owner
+    await createNotification(
+      userId,
+      'BOOKING_CREATED',
+      `Booking request submitted for ${booking.turf.name} on ${bookingDate}.`
+    );
+    await createNotification(
+      booking.turf.ownerId,
+      'BOOKING_CREATED',
+      `New booking request received for ${booking.turf.name} on ${bookingDate}.`
+    );
+
+    return booking;
   } catch (err: any) {
     if (err.code === 'P2002') {
       throw new ApiError(409, 'This slot has already been booked for the selected date');
@@ -78,7 +93,10 @@ export async function getBookingById(bookingId: number, userId: number, role: st
 }
 
 export async function cancelBooking(bookingId: number, userId: number, role: string) {
-  const booking = await prisma.booking.findUnique({ where: { id: bookingId } });
+  const booking = await prisma.booking.findUnique({
+    where: { id: bookingId },
+    include: { turf: true },
+  });
   if (!booking) throw new ApiError(404, 'Booking not found');
   if (booking.userId !== userId && role !== 'ADMIN') {
     throw new ApiError(403, 'You do not have permission to cancel this booking');
@@ -90,8 +108,22 @@ export async function cancelBooking(bookingId: number, userId: number, role: str
     throw new ApiError(400, 'Cannot cancel a completed booking');
   }
 
-  return prisma.booking.update({
+  const updatedBooking = await prisma.booking.update({
     where: { id: bookingId },
     data: { status: 'CANCELLED', activeKey: null },
   });
+
+  // Notify user & owner
+  await createNotification(
+    booking.userId,
+    'BOOKING_CANCELLED',
+    `Booking #${bookingId} for ${booking.turf.name} has been cancelled.`
+  );
+  await createNotification(
+    booking.turf.ownerId,
+    'BOOKING_CANCELLED',
+    `Booking #${bookingId} for ${booking.turf.name} was cancelled.`
+  );
+
+  return updatedBooking;
 }

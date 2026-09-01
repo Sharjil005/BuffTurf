@@ -1,5 +1,6 @@
 import { prisma } from '../config/db';
 import { ApiError } from '../utils/ApiError';
+import { createNotification } from './notification.service';
 
 export async function getDashboardStats(ownerId: number) {
   const turfs = await prisma.turf.findMany({ where: { ownerId }, select: { id: true } });
@@ -81,5 +82,13 @@ export async function markBookingCompleted(bookingId: number, ownerId: number) {
     throw new ApiError(400, 'Only confirmed bookings can be marked as completed');
   }
 
-  return prisma.booking.update({ where: { id: bookingId }, data: { status: 'COMPLETED' } });
+  const updatedBooking = await prisma.booking.update({ where: { id: bookingId }, data: { status: 'COMPLETED' } });
+
+  await createNotification(
+    booking.userId,
+    'BOOKING_COMPLETED',
+    `Your session at ${booking.turf.name} is completed! Please leave a review.`
+  );
+
+  return updatedBooking;
 }

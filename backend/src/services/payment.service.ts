@@ -2,13 +2,14 @@ import { prisma } from '../config/db';
 import { ApiError } from '../utils/ApiError';
 import { MockPaymentProvider } from './providers/MockPaymentProvider';
 import type { PaymentProvider } from './providers/PaymentProvider';
+import { createNotification } from './notification.service';
 
 const provider: PaymentProvider = new MockPaymentProvider();
 
 export async function payForBooking(bookingId: number, userId: number) {
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
-    include: { payment: true },
+    include: { payment: true, turf: true },
   });
 
   if (!booking) throw new ApiError(404, 'Booking not found');
@@ -44,6 +45,18 @@ export async function payForBooking(bookingId: number, userId: number) {
       where: { id: bookingId },
       data: { status: 'CONFIRMED' },
     });
+
+    await createNotification(
+      userId,
+      'BOOKING_CONFIRMED',
+      `Payment of ₹${booking.totalPrice} successful! Booking #${bookingId} for ${booking.turf.name} is confirmed.`
+    );
+
+    await createNotification(
+      booking.turf.ownerId,
+      'BOOKING_CONFIRMED',
+      `Payment confirmed for booking #${bookingId} at ${booking.turf.name}.`
+    );
   }
 
   return { payment, bookingStatus: result.status === 'SUCCESS' ? 'CONFIRMED' : booking.status };

@@ -13,7 +13,7 @@ const sortOptions = [
 ] as const;
 
 export default function Discovery() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   const [search, setSearch] = useState(searchParams.get('search') ?? '');
   const [city, setCity] = useState('');
