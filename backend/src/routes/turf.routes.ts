@@ -7,6 +7,8 @@ import { createTurfSchema, updateTurfSchema } from '../validators/turf.validator
 import * as turfController from '../controllers/turf.controller';
 import { createTimeSlotSchema, updateTimeSlotSchema } from '../validators/timeSlot.validator';
 import * as timeSlotController from '../controllers/timeSlot.controller';
+import * as reviewController from '../controllers/review.controller';
+import { createReviewSchema } from '../validators/review.validator';
 
 const router = Router();
 
@@ -16,6 +18,14 @@ router.get('/', asyncHandler(turfController.getTurfs));
 router.get('/sports', asyncHandler(turfController.listSports));
 router.get('/facilities', asyncHandler(turfController.listFacilities));
 router.get('/mine', protect, authorize('TURF_OWNER'), asyncHandler(turfController.getMyTurfs));
+
+router.get('/:id/reviews', asyncHandler(reviewController.getTurfReviews));
+router.post(
+  '/:id/reviews',
+  protect,
+  validate(createReviewSchema),
+  asyncHandler(reviewController.createReview)
+);
 
 router.post(
   '/',
@@ -83,5 +93,6 @@ router.delete(
   authorize('TURF_OWNER', 'ADMIN'),
   asyncHandler(turfController.deleteTurfImage)
 );
+
 
 export default router;
