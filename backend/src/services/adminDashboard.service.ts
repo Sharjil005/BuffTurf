@@ -1,5 +1,6 @@
 import { prisma } from '../config/db';
 import { ApiError } from '../utils/ApiError';
+import { createNotification } from './notification.service';
 
 export async function getPlatformStats() {
   const [totalUsers, totalTurfs, totalBookings, pendingTurfs, totalRevenue] = await Promise.all([
@@ -46,7 +47,16 @@ export async function getAllTurfs() {
 export async function updateTurfStatus(turfId: number, status: 'APPROVED' | 'REJECTED') {
   const turf = await prisma.turf.findUnique({ where: { id: turfId } });
   if (!turf) throw new ApiError(404, 'Turf not found');
-  return prisma.turf.update({ where: { id: turfId }, data: { status } });
+  const updatedTurf = await prisma.turf.update({ where: { id: turfId }, data: { status } });
+
+  const type = status === 'APPROVED' ? 'TURF_APPROVED' : 'TURF_REJECTED';
+  const msg = status === 'APPROVED'
+    ? `Great news! Your turf listing "${turf.name}" has been approved by Admin.`
+    : `Your turf listing "${turf.name}" was not approved by Admin.`;
+
+  await createNotification(turf.ownerId, type, msg);
+
+  return updatedTurf;
 }
 
 export async function getAllBookings() {

@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getTurfById, type Turf } from '../services/api/turf';
-import { getAvailability, getTurfSlots, type SlotAvailability, type TimeSlot } from '../services/api/timeSlot';
+import { getAvailability, type SlotAvailability } from '../services/api/timeSlot';
 import { getTurfReviews, type Review } from '../services/api/review';
 import { getMyBookings } from '../services/api/booking';
 import { useAuth } from '../context/AuthContext';
 import Badge from '../components/ui/Badge';
-import Button from '../components/ui/Button';
 import DatePicker from '../components/booking/DatePicker';
 import BookingModal from '../components/booking/BookingModal';
 import ReviewForm from '../components/review/ReviewForm';
