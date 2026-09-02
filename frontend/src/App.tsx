@@ -24,6 +24,10 @@ import AdminUsers from './pages/admin/AdminUsers';
 import AdminTurfs from './pages/admin/AdminTurfs';
 import AdminBookings from './pages/admin/AdminBookings';
 
+import Support from './pages/Support';
+import OwnerComplaints from './pages/owner/OwnerComplaints';
+import AdminComplaints from './pages/admin/AdminComplaints';
+
 function App() {
   return (
     <AuthProvider>
@@ -41,6 +45,7 @@ function App() {
                 <Route path="/my-bookings" element={<MyBookings />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/favorites" element={<Favorites />} />
+                <Route path="/support" element={<Support />} />
               </Route>
 
               <Route element={<ProtectedRoute allowedRoles={['TURF_OWNER']} />}>
@@ -48,6 +53,7 @@ function App() {
                   <Route path="/owner" element={<OwnerOverview />} />
                   <Route path="/owner/turfs" element={<OwnerDashboard />} />
                   <Route path="/owner/bookings" element={<OwnerBookings />} />
+                  <Route path="/owner/complaints" element={<OwnerComplaints />} />
                   <Route path="/owner/add-turf" element={<AddTurf />} />
                 </Route>
                 <Route path="/owner/turfs/:id/slots" element={<ManageSlots />} />
@@ -59,6 +65,7 @@ function App() {
                   <Route path="/admin/users" element={<AdminUsers />} />
                   <Route path="/admin/turfs" element={<AdminTurfs />} />
                   <Route path="/admin/bookings" element={<AdminBookings />} />
+                  <Route path="/admin/complaints" element={<AdminComplaints />} />
                 </Route>
               </Route>
 

@@ -5,6 +5,7 @@ const links = [
   { to: '/admin/users', label: 'Users' },
   { to: '/admin/turfs', label: 'Turfs' },
   { to: '/admin/bookings', label: 'Bookings' },
+  { to: '/admin/complaints', label: 'Complaints' },
 ];
 
 export default function AdminLayout() {

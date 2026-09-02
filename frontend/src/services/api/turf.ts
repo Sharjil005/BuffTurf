@@ -96,7 +96,7 @@ export async function uploadTurfImage(turfId: number, file: File): Promise<TurfI
   return res.data.image;
 }
 
-export async function getTurfs(params: GetTurfsParams): Promise<GetTurfsResponse> {
+export async function getTurfs(params?: GetTurfsParams): Promise<GetTurfsResponse> {
   const res = await api.get('/turfs', { params });
   return res.data;
 }
