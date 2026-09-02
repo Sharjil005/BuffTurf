@@ -4,6 +4,7 @@ const links = [
   { to: '/owner', label: 'Overview', end: true },
   { to: '/owner/turfs', label: 'My Turfs' },
   { to: '/owner/bookings', label: 'Bookings' },
+  { to: '/owner/analytics', label: 'Analytics & Reports' },
   { to: '/owner/complaints', label: 'Complaints' },
   { to: '/owner/add-turf', label: 'Add Turf' },
 ];
