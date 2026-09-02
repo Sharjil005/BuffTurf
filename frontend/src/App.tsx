@@ -27,6 +27,8 @@ import AdminBookings from './pages/admin/AdminBookings';
 import Support from './pages/Support';
 import OwnerComplaints from './pages/owner/OwnerComplaints';
 import AdminComplaints from './pages/admin/AdminComplaints';
+import OwnerAnalytics from './pages/owner/OwnerAnalytics';
+import AdminAnalytics from './pages/admin/AdminAnalytics';
 
 function App() {
   return (
@@ -53,6 +55,7 @@ function App() {
                   <Route path="/owner" element={<OwnerOverview />} />
                   <Route path="/owner/turfs" element={<OwnerDashboard />} />
                   <Route path="/owner/bookings" element={<OwnerBookings />} />
+                  <Route path="/owner/analytics" element={<OwnerAnalytics />} />
                   <Route path="/owner/complaints" element={<OwnerComplaints />} />
                   <Route path="/owner/add-turf" element={<AddTurf />} />
                 </Route>
@@ -65,6 +68,7 @@ function App() {
                   <Route path="/admin/users" element={<AdminUsers />} />
                   <Route path="/admin/turfs" element={<AdminTurfs />} />
                   <Route path="/admin/bookings" element={<AdminBookings />} />
+                  <Route path="/admin/analytics" element={<AdminAnalytics />} />
                   <Route path="/admin/complaints" element={<AdminComplaints />} />
                 </Route>
               </Route>

@@ -8,6 +8,7 @@ import ownerRoutes from './owner.routes';
 import adminRoutes from './admin.routes';
 import notificationRoutes from './notification.routes';
 import complaintRoutes from './complaint.routes';
+import analyticsRoutes from './analytics.routes';
 
 const router = Router();
 router.use('/health', healthRoutes);
@@ -19,5 +20,6 @@ router.use('/owner', ownerRoutes);
 router.use('/admin', adminRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/complaints', complaintRoutes);
+router.use('/analytics', analyticsRoutes);
 
 export default router;
