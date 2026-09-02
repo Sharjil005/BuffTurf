@@ -40,6 +40,7 @@ export default function Navbar() {
               )}
               <NotificationDropdown />
               <Link to="/favorites" className="hover:text-pitch-500">Favorites</Link>
+              <Link to="/support" className="hover:text-pitch-500">Support</Link>
               <Link to="/profile" className="hover:text-pitch-500">Profile</Link>
               <span className="text-ink-900/60">Hi, {user.name.split(' ')[0]}</span>
               <Button variant="ghost" className="px-4 py-2 text-sm" onClick={handleLogout}>
