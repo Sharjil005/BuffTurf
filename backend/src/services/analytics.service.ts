@@ -152,7 +152,15 @@ export async function getAdminAnalytics() {
   };
 }
 
-export async function exportBookingsCSV(userId: number, role: string): Promise<string> {
+// L3: CSV export accepts optional date range and enforces a 10,000 row hard cap.
+export async function exportBookingsCSV(
+  userId: number,
+  role: string,
+  startDate?: string,
+  endDate?: string
+): Promise<string> {
+  const CSV_ROW_CAP = 10_000;
+
   let whereClause: any = {};
 
   if (role === 'TURF_OWNER') {
@@ -161,6 +169,13 @@ export async function exportBookingsCSV(userId: number, role: string): Promise<s
     whereClause = { turfId: { in: turfIds } };
   } else if (role !== 'ADMIN') {
     whereClause = { userId };
+  }
+
+  // Optional date range filter on bookingDate
+  if (startDate || endDate) {
+    whereClause.bookingDate = {};
+    if (startDate) whereClause.bookingDate.gte = new Date(`${startDate}T00:00:00Z`);
+    if (endDate) whereClause.bookingDate.lte = new Date(`${endDate}T23:59:59Z`);
   }
 
   const bookings = await prisma.booking.findMany({
@@ -173,10 +188,11 @@ export async function exportBookingsCSV(userId: number, role: string): Promise<s
       payment: { select: { status: true, amount: true } },
     },
     orderBy: { createdAt: 'desc' },
+    take: CSV_ROW_CAP, // Hard cap — prevents memory exhaustion on large datasets
   });
 
   const headers = ['Booking ID', 'User Name', 'User Email', 'Turf Name', 'Sport', 'Booking Date', 'Time Slot', 'Price (INR)', 'Status', 'Payment Status'];
-  
+
   const rows = bookings.map((b) => [
     b.id,
     `"${b.user.name.replace(/"/g, '""')}"`,

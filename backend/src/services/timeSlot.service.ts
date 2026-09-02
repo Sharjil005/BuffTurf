@@ -11,11 +11,13 @@ export async function createTimeSlot(
 ) {
   await assertOwnership(turfId, userId, role);
 
+  // B4: Check overlap against ALL slots (active or inactive) to protect time window invariant.
+  // If we only checked isActive:true, a deactivated slot's window could be double-booked
+  // and both later reactivated, breaking the non-overlapping schedule guarantee.
   const overlapping = await prisma.timeSlot.findFirst({
     where: {
       turfId,
       dayOfWeek: input.dayOfWeek,
-      isActive: true,
       OR: [
         { startTime: { lt: input.endTime }, endTime: { gt: input.startTime } },
       ],

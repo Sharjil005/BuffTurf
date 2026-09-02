@@ -19,7 +19,11 @@ export async function payForBooking(bookingId: number, userId: number) {
   if (booking.status === 'CANCELLED') {
     throw new ApiError(400, 'Cannot pay for a cancelled booking');
   }
-  if (booking.payment?.status === 'SUCCESS') {
+  if (booking.status === 'COMPLETED') {
+    throw new ApiError(400, 'Cannot pay for a completed booking');
+  }
+  // B3: Block re-processing unless the previous attempt explicitly FAILED
+  if (booking.payment && booking.payment.status !== 'FAILED') {
     throw new ApiError(400, 'This booking has already been paid for');
   }
 

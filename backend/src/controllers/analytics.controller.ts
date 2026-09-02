@@ -16,7 +16,14 @@ export async function getAdminAnalytics(req: Request, res: Response) {
 
 export async function exportBookingsCSV(req: Request, res: Response) {
   if (!req.user) throw new ApiError(401, 'Unauthorized');
-  const csvData = await analyticsService.exportBookingsCSV(req.user.id, req.user.role);
+
+  const { startDate, endDate } = req.query as { startDate?: string; endDate?: string };
+  const csvData = await analyticsService.exportBookingsCSV(
+    req.user.id,
+    req.user.role,
+    startDate,
+    endDate
+  );
 
   res.setHeader('Content-Type', 'text/csv');
   res.setHeader('Content-Disposition', 'attachment; filename="buffturf-bookings-export.csv"');

@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
+import ErrorBoundary from './components/ErrorBoundary';
 import MainLayout from './layouts/MainLayout';
 import OwnerLayout from './layouts/OwnerLayout';
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -35,47 +36,49 @@ function App() {
     <AuthProvider>
       <NotificationProvider>
         <BrowserRouter>
-          <Routes>
-            <Route element={<MainLayout />}>
-              <Route path="/" element={<Home />} />
-              <Route path="/turfs" element={<Discovery />} />
-              <Route path="/turfs/:id" element={<TurfDetail />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
+          <ErrorBoundary>
+            <Routes>
+              <Route element={<MainLayout />}>
+                <Route path="/" element={<Home />} />
+                <Route path="/turfs" element={<Discovery />} />
+                <Route path="/turfs/:id" element={<TurfDetail />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
 
-              <Route element={<ProtectedRoute />}>
-                <Route path="/my-bookings" element={<MyBookings />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/favorites" element={<Favorites />} />
-                <Route path="/support" element={<Support />} />
-              </Route>
-
-              <Route element={<ProtectedRoute allowedRoles={['TURF_OWNER']} />}>
-                <Route element={<OwnerLayout />}>
-                  <Route path="/owner" element={<OwnerOverview />} />
-                  <Route path="/owner/turfs" element={<OwnerDashboard />} />
-                  <Route path="/owner/bookings" element={<OwnerBookings />} />
-                  <Route path="/owner/analytics" element={<OwnerAnalytics />} />
-                  <Route path="/owner/complaints" element={<OwnerComplaints />} />
-                  <Route path="/owner/add-turf" element={<AddTurf />} />
+                <Route element={<ProtectedRoute />}>
+                  <Route path="/my-bookings" element={<MyBookings />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/favorites" element={<Favorites />} />
+                  <Route path="/support" element={<Support />} />
                 </Route>
-                <Route path="/owner/turfs/:id/slots" element={<ManageSlots />} />
-              </Route>
 
-              <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
-                <Route element={<AdminLayout />}>
-                  <Route path="/admin" element={<AdminOverview />} />
-                  <Route path="/admin/users" element={<AdminUsers />} />
-                  <Route path="/admin/turfs" element={<AdminTurfs />} />
-                  <Route path="/admin/bookings" element={<AdminBookings />} />
-                  <Route path="/admin/analytics" element={<AdminAnalytics />} />
-                  <Route path="/admin/complaints" element={<AdminComplaints />} />
+                <Route element={<ProtectedRoute allowedRoles={['TURF_OWNER']} />}>
+                  <Route element={<OwnerLayout />}>
+                    <Route path="/owner" element={<OwnerOverview />} />
+                    <Route path="/owner/turfs" element={<OwnerDashboard />} />
+                    <Route path="/owner/bookings" element={<OwnerBookings />} />
+                    <Route path="/owner/analytics" element={<OwnerAnalytics />} />
+                    <Route path="/owner/complaints" element={<OwnerComplaints />} />
+                    <Route path="/owner/add-turf" element={<AddTurf />} />
+                  </Route>
+                  <Route path="/owner/turfs/:id/slots" element={<ManageSlots />} />
                 </Route>
-              </Route>
 
-              <Route path="*" element={<NotFound />} />
-            </Route>
-          </Routes>
+                <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
+                  <Route element={<AdminLayout />}>
+                    <Route path="/admin" element={<AdminOverview />} />
+                    <Route path="/admin/users" element={<AdminUsers />} />
+                    <Route path="/admin/turfs" element={<AdminTurfs />} />
+                    <Route path="/admin/bookings" element={<AdminBookings />} />
+                    <Route path="/admin/analytics" element={<AdminAnalytics />} />
+                    <Route path="/admin/complaints" element={<AdminComplaints />} />
+                  </Route>
+                </Route>
+
+                <Route path="*" element={<NotFound />} />
+              </Route>
+            </Routes>
+          </ErrorBoundary>
         </BrowserRouter>
       </NotificationProvider>
     </AuthProvider>

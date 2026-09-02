@@ -14,6 +14,15 @@ export async function createBooking(userId: number, input: CreateBookingInput) {
     throw new ApiError(400, 'This slot is not currently available');
   }
 
+  // B2: Ensure only APPROVED turfs can be booked
+  const turf = await prisma.turf.findUnique({ where: { id: turfId } });
+  if (!turf) {
+    throw new ApiError(404, 'Turf not found');
+  }
+  if (turf.status !== 'APPROVED') {
+    throw new ApiError(400, 'This turf is not currently accepting bookings');
+  }
+
   const sport = await prisma.sport.findUnique({ where: { id: sportId } });
   if (!sport) {
     throw new ApiError(404, 'Sport not found');
@@ -33,6 +42,12 @@ export async function createBooking(userId: number, input: CreateBookingInput) {
   if (dateObj.getUTCDay() !== slot.dayOfWeek) {
     throw new ApiError(400, "Selected date does not fall on this slot's day of the week");
   }
+
+  // L2 — KNOWN LIMITATION (design decision, not a bug):
+  // PENDING bookings (not yet paid) hold the slot via activeKey. If a user abandons
+  // payment, the slot remains locked until the booking is explicitly cancelled.
+  // No TTL / auto-expire mechanism exists. In production, implement a background
+  // job that expires PENDING bookings after e.g. 15 minutes.
 
   const activeKey = `${timeSlotId}#${bookingDate}`;
 
@@ -107,6 +122,12 @@ export async function cancelBooking(bookingId: number, userId: number, role: str
   if (booking.status === 'COMPLETED') {
     throw new ApiError(400, 'Cannot cancel a completed booking');
   }
+  // L1 — KNOWN LIMITATION (design decision, not a bug):
+  // A CONFIRMED (paid) booking can be cancelled here. The payment record stays at
+  // SUCCESS but the booking moves to CANCELLED and activeKey is nulled (freeing the slot).
+  // No refund logic exists because this is a mock payment system. In production,
+  // either (a) only admins should be able to cancel paid bookings, or (b) a refund
+  // flow must be triggered before setting the booking to CANCELLED.
 
   const updatedBooking = await prisma.booking.update({
     where: { id: bookingId },

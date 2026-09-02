@@ -10,7 +10,9 @@ export function errorHandler(err: unknown, req: Request, res: Response, next: Ne
     statusCode = err.statusCode;
     message = err.message;
   } else if (err instanceof Error) {
-    message = err.message;
+    // E1: In production, never leak internal error messages (e.g. Prisma stack traces).
+    // Only expose raw message in development for easier debugging.
+    message = env.NODE_ENV !== 'production' ? err.message : 'Something went wrong, please try again';
   }
 
   if (env.NODE_ENV !== 'production') {
@@ -21,4 +23,4 @@ export function errorHandler(err: unknown, req: Request, res: Response, next: Ne
     success: false,
     message,
   });
-}
+}
