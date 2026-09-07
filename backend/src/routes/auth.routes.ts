@@ -4,7 +4,6 @@ import { validate } from '../middleware/validate';
 import { registerSchema, loginSchema } from '../validators/auth.validator';
 import { protect } from '../middleware/auth';
 import { asyncHandler } from '../utils/asyncHandler';
-import { validate } from '../middleware/validate';
 import { updateProfileSchema } from '../validators/user.validator';
 
 const router = Router();
