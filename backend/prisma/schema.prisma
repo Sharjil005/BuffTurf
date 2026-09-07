@@ -92,7 +92,7 @@ model Turf {
   favorites  Favorite[]
   complaints Complaint[]
 
-  @@index([city])
+  @@index([status, city])
   @@index([ownerId])
   @@map("turfs")
 }

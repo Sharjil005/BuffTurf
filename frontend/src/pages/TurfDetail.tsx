@@ -95,7 +95,7 @@ export default function TurfDetail() {
     <div className="mx-auto max-w-5xl px-4 py-10">
       <div className="h-64 w-full overflow-hidden rounded-lg bg-ink-900/5 sm:h-80">
         {turf.images[0] ? (
-          <img src={turf.images[0].url} alt={turf.name} className="h-full w-full object-cover" />
+          <img src={turf.images[0].url} alt={turf.name} loading="lazy" className="h-full w-full object-cover" />
         ) : (
           <div className="flex h-full items-center justify-center text-ink-900/30">No image</div>
         )}
