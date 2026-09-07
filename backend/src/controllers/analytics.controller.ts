@@ -4,7 +4,7 @@ import { ApiError } from '../utils/ApiError';
 
 export async function getOwnerAnalytics(req: Request, res: Response) {
   if (!req.user) throw new ApiError(401, 'Unauthorized');
-  const analytics = await analyticsService.getOwnerAnalytics(req.user.id);
+  const analytics = await analyticsService.getOwnerAnalytics(req.user.userId);
   res.json({ analytics });
 }
 
@@ -19,7 +19,7 @@ export async function exportBookingsCSV(req: Request, res: Response) {
 
   const { startDate, endDate } = req.query as { startDate?: string; endDate?: string };
   const csvData = await analyticsService.exportBookingsCSV(
-    req.user.id,
+    req.user.userId,
     req.user.role,
     startDate,
     endDate
