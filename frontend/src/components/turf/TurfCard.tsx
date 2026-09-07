@@ -10,7 +10,7 @@ export default function TurfCard({ turf }: { turf: DiscoveryTurf }) {
       <Card className="p-0 overflow-hidden">
         <div className="relative h-44 w-full bg-ink-900/5">
           {turf.images[0] ? (
-            <img src={turf.images[0].url} alt={turf.name} className="h-full w-full object-cover" />
+            <img src={turf.images[0].url} alt={turf.name} loading="lazy" className="h-full w-full object-cover" />
           ) : (
             <div className="flex h-full items-center justify-center text-sm text-ink-900/30">
               No image
