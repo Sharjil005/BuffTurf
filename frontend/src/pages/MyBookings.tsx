@@ -44,7 +44,7 @@ export default function MyBookings() {
     try {
       const result = await payForBooking(id);
       if (result.payment.status === 'FAILED') {
-        setPaymentError((prev) => ({ ...prev, [id]: 'Payment simulation failed. Please try again.' }));
+        setPaymentError((prev) => ({ ...prev, [id]: 'Payment transaction could not be authorized. Please try again.' }));
       }
       load();
     } catch (err: any) {

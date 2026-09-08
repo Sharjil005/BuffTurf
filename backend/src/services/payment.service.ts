@@ -34,7 +34,7 @@ export async function payForBooking(bookingId: number, userId: number) {
     create: {
       bookingId,
       amount: booking.totalPrice,
-      method: 'MOCK',
+      method: 'ONLINE_GATEWAY',
       status: result.status,
       transactionRef: result.transactionRef,
     },

@@ -46,6 +46,6 @@ export interface PaymentResult {
 }
 
 export async function payForBooking(bookingId: number): Promise<PaymentResult> {
-  const res = await api.post(`/bookings/${bookingId}/pay`, { method: 'MOCK' });
+  const res = await api.post(`/bookings/${bookingId}/pay`, { method: 'ONLINE_GATEWAY' });
   return res.data;
 }
