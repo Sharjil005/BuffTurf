@@ -10,7 +10,7 @@ export class MockPaymentProvider implements PaymentProvider {
 
     return {
       status: isSuccess ? 'SUCCESS' : 'FAILED',
-      transactionRef: `MOCK-${meta.bookingId}-${Date.now()}`,
+      transactionRef: `BT-PAY-${meta.bookingId}-${Date.now()}`,
     };
   }
 }
