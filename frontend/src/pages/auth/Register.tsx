@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Input } from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
+import Badge from '../../components/ui/Badge';
 
 const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -41,44 +42,69 @@ export default function Register() {
   }
 
   return (
-    <div className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center px-4">
-      <h1 className="font-display text-4xl uppercase text-ink-900">Create Account</h1>
-      <p className="mt-2 text-ink-900/60">Join BuffTurf to start booking.</p>
-
-      <form onSubmit={handleSubmit(onSubmit)} className="mt-8 flex flex-col gap-4">
-        <Input label="Full Name" {...register('name')} error={errors.name?.message} />
-        <Input label="Email" type="email" {...register('email')} error={errors.email?.message} />
-        <Input
-          label="Password"
-          type="password"
-          {...register('password')}
-          error={errors.password?.message}
-        />
-
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-ink-900">I am a...</label>
-          <select
-            {...register('role')}
-            className="rounded-md border border-ink-900/15 px-4 py-2.5 text-ink-900 outline-none focus:border-pitch-500"
-          >
-            <option value="USER">Player looking to book turfs</option>
-            <option value="TURF_OWNER">Turf owner looking to list my ground</option>
-          </select>
+    <div className="mx-auto flex min-h-[80vh] max-w-md flex-col justify-center px-4 py-12">
+      <div className="rounded-3xl border border-emerald-500/20 bg-[#0E1713]/90 p-8 shadow-2xl backdrop-blur-xl">
+        <div className="text-center">
+          <Badge variant="emerald">Create Player / Owner Profile</Badge>
+          <h1 className="mt-3 font-display text-3xl font-black uppercase text-white">
+            Join BuffTurf
+          </h1>
+          <p className="mt-1 text-xs text-slate-400">
+            Lock down pitch slots or list your own arena in minutes.
+          </p>
         </div>
 
-        {serverError && <p className="text-sm text-red-500">{serverError}</p>}
+        <form onSubmit={handleSubmit(onSubmit)} className="mt-8 flex flex-col gap-4">
+          <Input
+            label="Full Name"
+            placeholder="Cristiano Ronaldo"
+            {...register('name')}
+            error={errors.name?.message}
+          />
+          <Input
+            label="Email Address"
+            type="email"
+            placeholder="player@buffturf.com"
+            {...register('email')}
+            error={errors.email?.message}
+          />
+          <Input
+            label="Password"
+            type="password"
+            placeholder="Minimum 8 characters"
+            {...register('password')}
+            error={errors.password?.message}
+          />
 
-        <Button type="submit" variant="primary" disabled={isSubmitting} className="mt-2">
-          {isSubmitting ? 'Creating account...' : 'Create Account'}
-        </Button>
-      </form>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-semibold tracking-wider uppercase text-slate-400">Account Type</label>
+            <select
+              {...register('role')}
+              className="rounded-xl border border-emerald-500/20 bg-[#0C1410] px-4 py-2.5 text-sm text-slate-100 outline-none focus:border-emerald-400 focus:bg-[#111C17]"
+            >
+              <option value="USER">⚽ Player (Discover & Book Pitches)</option>
+              <option value="TURF_OWNER">🏟️ Arena Owner (List Grounds & Manage Slots)</option>
+            </select>
+          </div>
 
-      <p className="mt-6 text-center text-sm text-ink-900/60">
-        Already have an account?{' '}
-        <Link to="/login" className="font-medium text-pitch-500">
-          Log in
-        </Link>
-      </p>
+          {serverError && (
+            <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-400">
+              {serverError}
+            </div>
+          )}
+
+          <Button type="submit" variant="primary" size="lg" disabled={isSubmitting} className="mt-2 w-full">
+            {isSubmitting ? 'Creating Profile...' : 'Get Started ⚡'}
+          </Button>
+        </form>
+
+        <p className="mt-6 text-center text-xs text-slate-400">
+          Already have an account?{' '}
+          <Link to="/login" className="font-bold text-emerald-400 hover:text-emerald-300">
+            Sign In
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }
