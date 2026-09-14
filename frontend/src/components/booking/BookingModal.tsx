@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { createBooking } from '../../services/api/booking';
 import type { SlotAvailability } from '../../services/api/timeSlot';
+import RazorpayModal from '../payment/RazorpayModal';
 import Button from '../ui/Button';
 
 interface BookingModalProps {
@@ -30,6 +31,10 @@ export default function BookingModal({
   const [selectedSportId, setSelectedSportId] = useState<number>(initialSportId);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [createdBookingId, setCreatedBookingId] = useState<number | null>(null);
+
+  const selectedSport = availableSports.find((s) => s.id === selectedSportId);
+  const displaySportName = selectedSport ? selectedSport.name : defaultSportName || 'Pitch Session';
 
   async function handleConfirm() {
     if (!selectedSportId) {
@@ -39,8 +44,9 @@ export default function BookingModal({
     setSubmitting(true);
     setError(null);
     try {
-      await createBooking({ turfId, timeSlotId: slot.id, sportId: selectedSportId, bookingDate: date });
-      onSuccess();
+      const booking = await createBooking({ turfId, timeSlotId: slot.id, sportId: selectedSportId, bookingDate: date });
+      // Open Razorpay modal for payment
+      setCreatedBookingId(booking.id);
     } catch (err: any) {
       setError(err.response?.data?.message ?? 'Booking failed, please try again');
     } finally {
@@ -48,8 +54,18 @@ export default function BookingModal({
     }
   }
 
-  const selectedSport = availableSports.find((s) => s.id === selectedSportId);
-  const displaySportName = selectedSport ? selectedSport.name : defaultSportName || 'Pitch Session';
+  // If booking was created, hand off to RazorpayModal
+  if (createdBookingId !== null) {
+    return (
+      <RazorpayModal
+        bookingId={createdBookingId}
+        turfName={turfName}
+        amount={`₹${slot.price}`}
+        onClose={onClose}
+        onSuccess={onSuccess}
+      />
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 backdrop-blur-md">
@@ -110,6 +126,15 @@ export default function BookingModal({
           </div>
         </div>
 
+        {/* Razorpay badge */}
+        <div className="mt-4 flex items-center justify-center gap-2 rounded-xl border border-blue-500/20 bg-blue-500/5 px-3 py-2">
+          <svg width="16" height="16" viewBox="0 0 28 28" fill="none">
+            <rect width="28" height="28" rx="6" fill="#3395FF" />
+            <path d="M8 20L14 8L20 20H16.5L14 14.5L11.5 20H8Z" fill="white" />
+          </svg>
+          <span className="text-xs text-blue-300 font-medium">Payment secured by Razorpay</span>
+        </div>
+
         {error && (
           <div className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-400">
             {error}
@@ -121,7 +146,7 @@ export default function BookingModal({
             Cancel
           </Button>
           <Button variant="primary" className="flex-1" onClick={handleConfirm} disabled={submitting}>
-            {submitting ? 'Locking Pitch...' : 'Lock Slot Now ⚡'}
+            {submitting ? 'Locking Pitch...' : 'Proceed to Pay ⚡'}
           </Button>
         </div>
       </div>

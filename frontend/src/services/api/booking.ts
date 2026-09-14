@@ -36,6 +36,26 @@ export async function cancelBooking(id: number): Promise<Booking> {
   return res.data.booking;
 }
 
+// ─── Razorpay Two-Phase Payment ──────────────────────────────────────────────
+
+export interface RazorpayOrder {
+  orderId: string;
+  amount: number; // in paise
+  currency: string;
+  keyId: string;
+}
+
+export async function createRazorpayOrder(bookingId: number): Promise<RazorpayOrder> {
+  const res = await api.post(`/bookings/${bookingId}/razorpay-order`);
+  return res.data.order;
+}
+
+export interface VerifyPaymentData {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+}
+
 export interface PaymentResult {
   payment: {
     id: number;
@@ -44,6 +64,13 @@ export interface PaymentResult {
   };
   bookingStatus: Booking['status'];
 }
+
+export async function verifyRazorpayPayment(bookingId: number, data: VerifyPaymentData): Promise<PaymentResult> {
+  const res = await api.post(`/bookings/${bookingId}/razorpay-verify`, data);
+  return res.data;
+}
+
+// ─── Legacy direct pay (kept for backwards compat) ───────────────────────────
 
 export async function payForBooking(bookingId: number): Promise<PaymentResult> {
   const res = await api.post(`/bookings/${bookingId}/pay`, { method: 'ONLINE_GATEWAY' });
