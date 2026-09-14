@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useNotifications } from '../../context/NotificationContext';
+import { useNotifications } from '../../hooks/useNotifications';
 
 export default function NotificationDropdown() {
   const { notifications, unreadCount, markRead, markAllRead, removeNotification, fetchNotifications } = useNotifications();

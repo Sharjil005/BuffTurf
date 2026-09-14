@@ -54,6 +54,29 @@ export async function updateTimeSlot(
     throw new ApiError(404, 'Time slot not found');
   }
 
+  const newStartTime = input.startTime ?? slot.startTime;
+  const newEndTime = input.endTime ?? slot.endTime;
+
+  if (newStartTime >= newEndTime) {
+    throw new ApiError(400, 'End time must be after start time');
+  }
+
+  if (input.startTime || input.endTime) {
+    const overlapping = await prisma.timeSlot.findFirst({
+      where: {
+        turfId,
+        dayOfWeek: slot.dayOfWeek,
+        id: { not: slotId },
+        startTime: { lt: newEndTime },
+        endTime: { gt: newStartTime },
+      },
+    });
+
+    if (overlapping) {
+      throw new ApiError(409, 'This time slot overlaps with an existing slot on that day');
+    }
+  }
+
   return prisma.timeSlot.update({
     where: { id: slotId },
     data: input,

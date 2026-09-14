@@ -6,8 +6,9 @@ import Button from '../ui/Button';
 interface BookingModalProps {
   turfId: number;
   turfName: string;
-  sportId: number;
-  sportName: string;
+  sportId?: number;
+  sportName?: string;
+  availableSports?: { id: number; name: string }[];
   date: string;
   slot: SlotAvailability;
   onClose: () => void;
@@ -17,21 +18,28 @@ interface BookingModalProps {
 export default function BookingModal({
   turfId,
   turfName,
-  sportId,
-  sportName,
+  sportId: defaultSportId,
+  sportName: defaultSportName,
+  availableSports = [],
   date,
   slot,
   onClose,
   onSuccess,
 }: BookingModalProps) {
+  const initialSportId = defaultSportId || (availableSports[0]?.id ?? 0);
+  const [selectedSportId, setSelectedSportId] = useState<number>(initialSportId);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function handleConfirm() {
+    if (!selectedSportId) {
+      setError('Please select a sport for your booking');
+      return;
+    }
     setSubmitting(true);
     setError(null);
     try {
-      await createBooking({ turfId, timeSlotId: slot.id, sportId, bookingDate: date });
+      await createBooking({ turfId, timeSlotId: slot.id, sportId: selectedSportId, bookingDate: date });
       onSuccess();
     } catch (err: any) {
       setError(err.response?.data?.message ?? 'Booking failed, please try again');
@@ -39,6 +47,9 @@ export default function BookingModal({
       setSubmitting(false);
     }
   }
+
+  const selectedSport = availableSports.find((s) => s.id === selectedSportId);
+  const displaySportName = selectedSport ? selectedSport.name : defaultSportName || 'Pitch Session';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 backdrop-blur-md">
@@ -65,9 +76,23 @@ export default function BookingModal({
             <span className="text-slate-400">Venue Pitch:</span>
             <span className="font-bold text-white text-right">{turfName}</span>
           </div>
-          <div className="flex justify-between">
+          <div className="flex items-center justify-between">
             <span className="text-slate-400">Sport:</span>
-            <span className="font-bold text-emerald-400">{sportName}</span>
+            {availableSports.length > 1 ? (
+              <select
+                value={selectedSportId}
+                onChange={(e) => setSelectedSportId(Number(e.target.value))}
+                className="rounded-lg border border-emerald-500/30 bg-[#121E18] px-2.5 py-1 text-xs font-bold text-emerald-400 outline-none focus:border-emerald-400"
+              >
+                {availableSports.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    ⚽ {s.name}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <span className="font-bold text-emerald-400">{displaySportName}</span>
+            )}
           </div>
           <div className="flex justify-between">
             <span className="text-slate-400">Match Date:</span>

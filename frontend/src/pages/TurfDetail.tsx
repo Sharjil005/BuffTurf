@@ -4,7 +4,7 @@ import { getTurfById, type Turf } from '../services/api/turf';
 import { getAvailability, type SlotAvailability } from '../services/api/timeSlot';
 import { getTurfReviews, type Review } from '../services/api/review';
 import { getMyBookings } from '../services/api/booking';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
 import BookingModal from '../components/booking/BookingModal';
@@ -460,8 +460,7 @@ export default function TurfDetail() {
         <BookingModal
           turfId={turfId}
           turfName={turf.name}
-          sportId={turf.turfSports[0]?.sport.id ?? 0}
-          sportName={turf.turfSports[0]?.sport.name ?? ''}
+          availableSports={turf.turfSports.map((ts) => ts.sport)}
           date={date}
           slot={selectedSlot}
           onClose={() => setSelectedSlot(null)}

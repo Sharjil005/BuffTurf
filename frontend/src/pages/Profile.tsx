@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { updateProfile } from '../services/api/auth';
 import { Input } from '../components/ui/Input';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 
 export default function Profile() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [name, setName] = useState(user?.name ?? '');
   const [phone, setPhone] = useState(user?.phone ?? '');
   const [saving, setSaving] = useState(false);
@@ -17,7 +17,8 @@ export default function Profile() {
     setSaving(true);
     setMessage(null);
     try {
-      await updateProfile({ name, phone });
+      const updatedUser = await updateProfile({ name, phone });
+      updateUser(updatedUser);
       setMessage('Profile credentials updated successfully.');
     } catch {
       setMessage('Failed to update profile. Please try again.');

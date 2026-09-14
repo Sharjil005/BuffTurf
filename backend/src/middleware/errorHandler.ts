@@ -9,6 +9,9 @@ export function errorHandler(err: unknown, req: Request, res: Response, next: Ne
   if (err instanceof ApiError) {
     statusCode = err.statusCode;
     message = err.message;
+  } else if ((err as any)?.name === 'MulterError') {
+    statusCode = 400;
+    message = (err as Error).message;
   } else if (err instanceof Error) {
     // E1: In production, never leak internal error messages (e.g. Prisma stack traces).
     // Only expose raw message in development for easier debugging.

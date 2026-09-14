@@ -21,10 +21,26 @@ export async function getMyFavorites(userId: number) {
     where: { userId },
     include: {
       turf: {
-        include: { images: true, turfSports: { include: { sport: true } } },
+        include: {
+          images: true,
+          turfSports: { include: { sport: true } },
+          timeSlots: { where: { isActive: true }, select: { price: true } },
+          reviews: { select: { rating: true } },
+        },
       },
     },
     orderBy: { createdAt: 'desc' },
   });
-  return favorites.map((f) => f.turf);
+
+  return favorites.map((f) => {
+    const turf = f.turf;
+    const prices = turf.timeSlots.map((s) => Number(s.price));
+    const startingPrice = prices.length ? Math.min(...prices) : null;
+    const avgRating = turf.reviews.length
+      ? turf.reviews.reduce((sum, r) => sum + r.rating, 0) / turf.reviews.length
+      : 0;
+
+    const { timeSlots, reviews, ...rest } = turf;
+    return { ...rest, startingPrice, avgRating, reviewCount: reviews.length };
+  });
 }

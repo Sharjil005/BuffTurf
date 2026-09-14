@@ -20,7 +20,7 @@ export default function ReviewForm({ turfId, bookingId, onSuccess }: ReviewFormP
     setSubmitting(true);
     setError(null);
     try {
-      await createReview(turfId, { bookingId, rating, comment });
+      await createReview(turfId, { bookingId, rating, comment: comment.trim() || undefined });
       onSuccess();
     } catch (err: any) {
       setError(err.response?.data?.message ?? 'Failed to submit review');
@@ -30,17 +30,17 @@ export default function ReviewForm({ turfId, bookingId, onSuccess }: ReviewFormP
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-lg border border-ink-900/10 p-5">
-      <h3 className="font-display text-lg uppercase text-ink-900">Leave a Review</h3>
+    <form onSubmit={handleSubmit} className="rounded-2xl border border-emerald-500/20 bg-[#0C1410] p-5">
+      <h3 className="font-display text-base font-bold uppercase text-white">Leave a Review</h3>
 
-      <div className="mt-3 flex gap-1">
+      <div className="mt-3 flex gap-1.5">
         {[1, 2, 3, 4, 5].map((star) => (
           <button
             key={star}
             type="button"
             onClick={() => setRating(star)}
-            className={`text-2xl transition-colors ${
-              star <= rating ? 'text-amber-500' : 'text-ink-900/20 hover:text-amber-300'
+            className={`text-2xl transition-transform hover:scale-110 cursor-pointer ${
+              star <= rating ? 'text-amber-400' : 'text-slate-600 hover:text-amber-300'
             }`}
           >
             ★
@@ -53,13 +53,13 @@ export default function ReviewForm({ turfId, bookingId, onSuccess }: ReviewFormP
         onChange={(e) => setComment(e.target.value)}
         placeholder="Share your experience (optional)"
         rows={3}
-        className="mt-3 w-full rounded-md border border-ink-900/15 px-4 py-2.5 text-sm text-ink-900 outline-none focus:border-pitch-500"
+        className="mt-3 w-full rounded-xl border border-emerald-500/20 bg-[#121E18] px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 outline-none transition-all focus:border-emerald-400 focus:bg-[#16271F]"
       />
 
-      {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
+      {error && <p className="mt-2 text-xs font-semibold text-red-400">{error}</p>}
 
-      <Button type="submit" variant="primary" disabled={submitting} className="mt-3 px-5 py-2 text-sm">
-        {submitting ? 'Submitting...' : 'Submit Review'}
+      <Button type="submit" variant="primary" disabled={submitting} className="mt-3 px-5 py-2 text-xs">
+        {submitting ? 'Submitting...' : 'Submit Review ⚡'}
       </Button>
     </form>
   );
