@@ -103,6 +103,10 @@ export async function deleteTurfImage(
   role: string
 ) {
   await assertOwnership(turfId, userId, role);
+  const image = await prisma.turfImage.findUnique({ where: { id: imageId } });
+  if (!image || image.turfId !== turfId) {
+    throw new ApiError(404, 'Turf image not found');
+  }
   await prisma.turfImage.delete({ where: { id: imageId } });
 }
 

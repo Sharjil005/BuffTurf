@@ -3,13 +3,17 @@ import { type ReactNode } from 'react';
 export default function Card({
   children,
   className = '',
+  hoverEffect = true,
 }: {
   children: ReactNode;
   className?: string;
+  hoverEffect?: boolean;
 }) {
   return (
     <div
-      className={`rounded-lg border border-ink-900/10 bg-chalk-50 p-6 shadow-sm transition-shadow hover:shadow-md ${className}`}
+      className={`relative rounded-2xl border border-emerald-500/10 bg-[#101A15]/90 backdrop-blur-md p-6 text-slate-100 shadow-xl ${
+        hoverEffect ? 'glass-panel-hover' : ''
+      } ${className}`}
     >
       {children}
     </div>

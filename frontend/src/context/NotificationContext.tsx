@@ -1,5 +1,5 @@
-import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
-import { useAuth } from './AuthContext';
+import { createContext, useEffect, useState, useCallback, type ReactNode } from 'react';
+import { useAuth } from '../hooks/useAuth';
 import * as notificationApi from '../services/api/notification';
 import type { AppNotification } from '../services/api/notification';
 
@@ -13,7 +13,7 @@ interface NotificationContextType {
   removeNotification: (id: number) => Promise<void>;
 }
 
-const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
+export const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
@@ -112,10 +112,4 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useNotifications() {
-  const context = useContext(NotificationContext);
-  if (!context) {
-    throw new Error('useNotifications must be used within a NotificationProvider');
-  }
-  return context;
-}
+
