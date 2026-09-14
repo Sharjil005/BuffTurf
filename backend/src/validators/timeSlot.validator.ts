@@ -20,6 +20,14 @@ export const updateTimeSlotSchema = z.object({
     endTime: z.string().regex(timePattern).optional(),
     price: z.coerce.number().positive().optional(),
     isActive: z.boolean().optional(),
+  }).refine((data) => {
+    if (data.startTime && data.endTime) {
+      return data.startTime < data.endTime;
+    }
+    return true;
+  }, {
+    message: 'End time must be after start time',
+    path: ['endTime'],
   }),
 });
 

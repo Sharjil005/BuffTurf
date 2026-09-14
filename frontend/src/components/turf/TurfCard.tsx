@@ -3,13 +3,19 @@ import type { DiscoveryTurf } from '../../services/api/turf';
 import Card from '../ui/Card';
 import FavoriteButton from './FavoriteButton';
 
-export default function TurfCard({ turf }: { turf: DiscoveryTurf }) {
+export default function TurfCard({
+  turf,
+  isFavorited = false,
+}: {
+  turf: DiscoveryTurf;
+  isFavorited?: boolean;
+}) {
   return (
     <Link to={`/turfs/${turf.id}`} className="group block">
       <Card className="overflow-hidden p-0 transition-all group-hover:border-emerald-500/40">
         {/* Pitch Image Container */}
         <div className="relative h-48 w-full overflow-hidden bg-[#0A110E]">
-          {turf.images[0] ? (
+          {turf.images && turf.images[0] ? (
             <img
               src={turf.images[0].url}
               alt={turf.name}
@@ -33,7 +39,7 @@ export default function TurfCard({ turf }: { turf: DiscoveryTurf }) {
           </div>
 
           <div className="absolute right-3 top-3">
-            <FavoriteButton turfId={turf.id} />
+            <FavoriteButton turfId={turf.id} initialFavorited={isFavorited} />
           </div>
 
           {/* Rating floating tag */}
@@ -82,7 +88,9 @@ export default function TurfCard({ turf }: { turf: DiscoveryTurf }) {
                 Session Rate
               </span>
               <span className="font-mono text-sm font-bold text-emerald-400">
-                {turf.startingPrice !== null ? `₹${turf.startingPrice}/hr` : 'Custom Rates'}
+                {turf.startingPrice !== null && turf.startingPrice !== undefined
+                  ? `₹${turf.startingPrice}/hr`
+                  : 'Custom Rates'}
               </span>
             </div>
             <span className="inline-flex items-center gap-1 rounded-xl bg-emerald-500/10 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-emerald-400 group-hover:bg-emerald-500 group-hover:text-black transition-all">

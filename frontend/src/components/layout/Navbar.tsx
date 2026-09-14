@@ -1,6 +1,6 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import Button from '../ui/Button';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import NotificationDropdown from '../notifications/NotificationDropdown';
 import { useState } from 'react';
 

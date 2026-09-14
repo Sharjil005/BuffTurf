@@ -63,24 +63,33 @@ export default function MyBookings() {
     );
   }
 
-  const now = new Date();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const isPastBooking = (b: Booking) => {
+    if (b.status === 'COMPLETED') return true;
+    const bDate = new Date(b.bookingDate);
+    bDate.setHours(0, 0, 0, 0);
+    return bDate < today;
+  };
+
   const filtered = bookings.filter((b) => {
     if (tab === 'cancelled') return b.status === 'CANCELLED';
-    const isPast = new Date(b.bookingDate) < now;
-    if (tab === 'past') return b.status !== 'CANCELLED' && isPast;
-    return b.status !== 'CANCELLED' && !isPast;
+    if (b.status === 'CANCELLED') return false;
+    const isPast = isPastBooking(b);
+    return tab === 'past' ? isPast : !isPast;
   });
 
   const tabs: { key: Tab; label: string; count: number }[] = [
     {
       key: 'upcoming',
       label: 'Upcoming Games',
-      count: bookings.filter((b) => b.status !== 'CANCELLED' && new Date(b.bookingDate) >= now).length,
+      count: bookings.filter((b) => b.status !== 'CANCELLED' && !isPastBooking(b)).length,
     },
     {
       key: 'past',
       label: 'Past Matches',
-      count: bookings.filter((b) => b.status !== 'CANCELLED' && new Date(b.bookingDate) < now).length,
+      count: bookings.filter((b) => b.status !== 'CANCELLED' && isPastBooking(b)).length,
     },
     {
       key: 'cancelled',
